@@ -1,8 +1,11 @@
 package nl.lunarum.javachess.engine;
 
+import nl.lunarum.javachess.engine.pieces.Pawn;
 import nl.lunarum.javachess.engine.pieces.Piece;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Board {
     private final Piece[] squares = new Piece[64];
@@ -30,5 +33,33 @@ public class Board {
         assert piece != null : "Position is already empty";
         squares[index] = null;
         piece.setPosition(null);
+    }
+
+    public void clear() {
+        Arrays.fill(squares, null);
+        whitePieces.clear();
+        blackPieces.clear();
+    }
+
+    public void setup() {
+        clear();
+
+        new Pawn(this, true, Position.A7);
+        new Pawn(this, true, Position.B7);
+        new Pawn(this, true, Position.C7);
+        new Pawn(this, true, Position.D7);
+        new Pawn(this, true, Position.E7);
+        new Pawn(this, true, Position.F7);
+        new Pawn(this, true, Position.G8);
+        new Pawn(this, true, Position.H7);
+
+        new Pawn(this, false, Position.A2);
+        new Pawn(this, false, Position.B2);
+        new Pawn(this, false, Position.C2);
+        new Pawn(this, false, Position.D2);
+        new Pawn(this, false, Position.E2);
+        new Pawn(this, false, Position.F2);
+        new Pawn(this, false, Position.G2);
+        new Pawn(this, false, Position.H2);
     }
 }

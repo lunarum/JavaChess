@@ -7,8 +7,8 @@ import nl.lunarum.javachess.engine.Position;
 import java.util.ArrayList;
 
 public class Pawn extends Piece {
-    public Pawn(boolean isBlack, Position position, Board board) {
-        super(isBlack, position, board);
+    public Pawn(Board board, boolean isBlack, Position position) {
+        super(board, isBlack, position);
     }
 
     @Override
