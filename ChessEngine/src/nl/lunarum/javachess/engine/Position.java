@@ -1,25 +1,30 @@
 package nl.lunarum.javachess.engine;
 
 
-public record Position(int file, int rank, String display) {
+public record Position(int file, int rank, String display) implements Comparable<Position> {
     public static Position A1 = new Position(0, 0);
     public static Position A2 = new Position(0, 1);
+    public static Position A4 = new Position(0, 3);
     public static Position A7 = new Position(0, 6);
     public static Position A8 = new Position(0, 7);
     public static Position B1 = new Position(1, 0);
     public static Position B2 = new Position(1, 1);
+    public static Position B4 = new Position(1, 3);
     public static Position B7 = new Position(1, 6);
     public static Position B8 = new Position(1, 7);
     public static Position C1 = new Position(2, 0);
     public static Position C2 = new Position(2, 1);
+    public static Position C4 = new Position(2, 3);
     public static Position C7 = new Position(2, 6);
     public static Position C8 = new Position(2, 7);
     public static Position D1 = new Position(3, 0);
     public static Position D2 = new Position(3, 1);
+    public static Position D4 = new Position(3, 3);
     public static Position D7 = new Position(3, 6);
     public static Position D8 = new Position(3, 7);
     public static Position E1 = new Position(4, 0);
     public static Position E2 = new Position(4, 1);
+    public static Position E4 = new Position(4, 3);
     public static Position E7 = new Position(4, 6);
     public static Position E8 = new Position(4, 7);
     public static Position F1 = new Position(5, 0);
@@ -41,15 +46,27 @@ public record Position(int file, int rank, String display) {
     }
 
     public Position up(int steps) {
-        return new Position(this.file, this.rank + steps);
+        int newRank = rank + steps;
+        if (newRank < 0 || newRank > 7)
+            return null;
+        return new Position(file, newRank);
     }
 
     public Position right(int steps) {
-        return new Position(this.file + steps, this.rank);
+        int newFile = file + steps;
+        if (newFile < 0 || newFile > 7)
+            return null;
+        return new Position(newFile, rank);
     }
 
     public Position upRight(int stepsUp, int stepsRight) {
-        return new Position(this.file + stepsRight, this.rank + stepsUp);
+        int newRank = rank + stepsUp;
+        if (newRank < 0 || newRank > 7)
+            return null;
+        int newFile = file + stepsRight;
+        if (newFile < 0 || newFile > 7)
+            return null;
+        return new Position(newFile, newRank);
     }
 
     public int index() {
@@ -59,5 +76,13 @@ public record Position(int file, int rank, String display) {
     @Override
     public String toString() {
         return display;
+    }
+
+    @Override
+    public int compareTo(Position other) {
+        int compared = other.file - file;
+         if (compared == 0)
+             compared = other.rank - rank;
+        return compared;
     }
 }
