@@ -28,7 +28,29 @@ public class King extends Piece {
         addPossiblePly(plies, position.upRight(-1, -1));
         addPossiblePly(plies, position.right(-1));
         addPossiblePly(plies, position.upRight(-1, 1));
+        addPossibleCastling(plies);
 
         return plies;
+    }
+    
+    private void addPossibleCastling(ArrayList<Ply> plies) {
+        //TODO: check if empty squares are attacked by the other player
+        if (isBlack) {
+            if (position.compareTo(Position.E8) == 0) {
+                var player = getPlayer();
+                if (player.isCanCastleKingSide() && chessBoard.onSquare(Position.F8) == null && chessBoard.onSquare(Position.G8) == null)
+                    addPossiblePly(plies, Position.G8);
+                if (player.isCanCastleQueenSide() && chessBoard.onSquare(Position.D8) == null && chessBoard.onSquare(Position.C8) == null && chessBoard.onSquare(Position.B8) == null)
+                    addPossiblePly(plies, Position.C8);
+            }
+        } else {
+            if (position.compareTo(Position.E1) == 0) {
+                var player = getPlayer();
+                if (player.isCanCastleKingSide() && chessBoard.onSquare(Position.F1) == null && chessBoard.onSquare(Position.G1) == null)
+                    addPossiblePly(plies, Position.G1);
+                if (player.isCanCastleQueenSide() && chessBoard.onSquare(Position.D1) == null && chessBoard.onSquare(Position.C1) == null && chessBoard.onSquare(Position.B1) == null)
+                    addPossiblePly(plies, Position.C1);
+            }
+        }
     }
 }

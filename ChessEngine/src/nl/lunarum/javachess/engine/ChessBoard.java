@@ -7,15 +7,15 @@ import java.util.Arrays;
 
 public class ChessBoard {
     private final Piece[] squares = new Piece[64];
-    private final ArrayList<Piece> blackPieces = new ArrayList<>(16);
-    private final ArrayList<Piece> whitePieces = new ArrayList<>(16);
+    private final Player blackPlayer = new Player();
+    private final Player whitePlayer = new Player();
 
     public ArrayList<Piece> getBlackPieces() {
-        return blackPieces;
+        return blackPlayer.getPieces();
     }
 
     public ArrayList<Piece> getWhitePieces() {
-        return whitePieces;
+        return whitePlayer.getPieces();
     }
 
     public void addPiece(Piece piece) {
@@ -23,9 +23,9 @@ public class ChessBoard {
         assert squares[index] == null : "Position is already occupied";
         squares[index] = piece;
         if (piece.isBlack)
-            blackPieces.add(piece);
+            blackPlayer.addPiece(piece);
         else
-            whitePieces.add(piece);
+            whitePlayer.addPiece(piece);
     }
 
     public void removePiece(Piece piece) {
@@ -43,8 +43,16 @@ public class ChessBoard {
 
     public void clear() {
         Arrays.fill(squares, null);
-        whitePieces.clear();
-        blackPieces.clear();
+        blackPlayer.clearPieces();
+        whitePlayer.clearPieces();
+    }
+
+    public Player getBlackPlayer() {
+        return blackPlayer;
+    }
+
+    public Player getWhitePlayer() {
+        return whitePlayer;
     }
 
     public Piece onSquare(Position position) {

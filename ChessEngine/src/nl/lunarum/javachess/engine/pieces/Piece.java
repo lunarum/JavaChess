@@ -1,6 +1,7 @@
 package nl.lunarum.javachess.engine.pieces;
 
 import nl.lunarum.javachess.engine.ChessBoard;
+import nl.lunarum.javachess.engine.Player;
 import nl.lunarum.javachess.engine.Ply;
 import nl.lunarum.javachess.engine.Position;
 
@@ -29,6 +30,12 @@ public abstract class Piece {
 
     public void setPosition(Position position) {
         this.position = position;
+    }
+
+    public Player getPlayer() {
+        if (isBlack)
+            return chessBoard.getBlackPlayer();
+        return chessBoard.getWhitePlayer();
     }
 
     public abstract ArrayList<Ply> possiblePlies();
