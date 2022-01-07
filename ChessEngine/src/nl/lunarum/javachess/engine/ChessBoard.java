@@ -9,6 +9,10 @@ public class ChessBoard {
     private final Piece[] squares = new Piece[64];
     private final Player blackPlayer = new Player();
     private final Player whitePlayer = new Player();
+    private Player player = whitePlayer;
+    private int halfMoves = 0;
+    private int move = 1;
+    private Position enPassant = null;
 
     public ArrayList<Piece> getBlackPieces() {
         return blackPlayer.getPieces();
@@ -16,6 +20,14 @@ public class ChessBoard {
 
     public ArrayList<Piece> getWhitePieces() {
         return whitePlayer.getPieces();
+    }
+
+    public int getHalfMoves() {
+        return halfMoves;
+    }
+
+    public int getMove() {
+        return move;
     }
 
     public void addPiece(Piece piece) {
@@ -45,6 +57,10 @@ public class ChessBoard {
         Arrays.fill(squares, null);
         blackPlayer.clearPieces();
         whitePlayer.clearPieces();
+        player = whitePlayer;
+        enPassant = null;
+        halfMoves = 0;
+        move = 1;
     }
 
     public Player getBlackPlayer() {
@@ -62,42 +78,102 @@ public class ChessBoard {
     }
 
     public void setup() {
+        setup("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+    }
+
+    private Piece newPiece(char type, Position position) {
+        char type1 = Character.toLowerCase(type);
+        switch(type1) {
+            case 'k': return new King(  this, type == type1, position);
+            case 'q': return new Queen( this, type == type1, position);
+            case 'r': return new Rook(  this, type == type1, position);
+            case 'b': return new Bishop(this, type == type1, position);
+            case 'n': return new Knight(this, type == type1, position);
+            case 'p': return new Pawn(  this, type == type1, position);
+        }
+        return  null;
+    }
+
+    public void setup(String Fen) {
         clear();
 
-        // Black
-        new Rook(this, true, Position.A8);
-        new Knight(this, true, Position.B8);
-        new Bishop(this, true, Position.C8);
-        new Queen(this, true, Position.D8);
-        new King(this, true, Position.E8);
-        new Bishop(this, true, Position.F8);
-        new Knight(this, true, Position.G8);
-        new Rook(this, true, Position.H8);
-        new Pawn(this, true, Position.A7);
-        new Pawn(this, true, Position.B7);
-        new Pawn(this, true, Position.C7);
-        new Pawn(this, true, Position.D7);
-        new Pawn(this, true, Position.E7);
-        new Pawn(this, true, Position.F7);
-        new Pawn(this, true, Position.G7);
-        new Pawn(this, true, Position.H7);
+        // Pieces setup
+        var position = Position.A8;
+        var firstPosition = Position.A8;
+        int index = 0;
+        while(index < Fen.length()) {
+            char ch = Fen.charAt(index);
+            if (Character.isDigit(ch)) {
+                position = position.right(ch - '0');
+            } else if (ch != '/'){
+                newPiece(ch, position);
+                position = position.right(1);
+            }
+            ++index;
+            if (position == null) {
+                position = firstPosition = firstPosition.up(-1);
+                if (position == null)
+                    break;
+            }
+        }
 
-        // White
-        new Pawn(this, false, Position.A2);
-        new Pawn(this, false, Position.B2);
-        new Pawn(this, false, Position.C2);
-        new Pawn(this, false, Position.D2);
-        new Pawn(this, false, Position.E2);
-        new Pawn(this, false, Position.F2);
-        new Pawn(this, false, Position.G2);
-        new Pawn(this, false, Position.H2);
-        new Rook(this, false, Position.A4);
-        new Knight(this, false, Position.B4);
-        new Bishop(this, false, Position.C4);
-        new Queen(this, false, Position.D4);
-        new King(this, false, Position.E4);
-        new Bishop(this, false, Position.F1);
-        new Knight(this, false, Position.G1);
-        new Rook(this, false, Position.H1);
+        // Skip space
+        ++index;
+
+        // Player to move next
+        if (index + 2 < Fen.length()) {
+            char ch = Fen.charAt(index++);
+            if (ch == 'b') // Black to move next? (default is white)
+                player = blackPlayer;
+        }
+
+        // Skip space
+        ++index;
+
+        if (index + 4 < Fen.length()) {
+            whitePlayer.setCanCastleKingSide(Fen.charAt(index++) == 'K');
+            whitePlayer.setCanCastleQueenSide(Fen.charAt(index++) == 'Q');
+            blackPlayer.setCanCastleKingSide(Fen.charAt(index++) == 'k');
+            blackPlayer.setCanCastleQueenSide(Fen.charAt(index++) == 'q');
+        }
+
+        // Skip space
+        ++index;
+
+        // en-passant
+        if (index  < Fen.length()) {
+            int file = Fen.charAt(index++) - 'a';
+            if (file >= 0 && file <= 7) {
+                if (index  < Fen.length()) {
+                    int rank = Fen.charAt(index++) - '0' - 1;
+                    if (rank == 2 || rank == 5) {
+                        enPassant = new Position(file, rank);
+                    }
+                }
+            }
+        }
+
+        // Skip space
+        ++index;
+
+        // halfMoves (=0)
+        while(index < Fen.length()) {
+            char ch = Fen.charAt(index++);
+            if (!Character.isDigit(ch))
+                break;
+            halfMoves *= 10;
+            halfMoves += ch - '0';
+        }
+
+
+        // move (=1)
+        move = 0;
+        while(index < Fen.length()) {
+            char ch = Fen.charAt(index++);
+            if (!Character.isDigit(ch))
+                break;
+            move *= 10;
+            move += ch - '0';
+        }
     }
 }
