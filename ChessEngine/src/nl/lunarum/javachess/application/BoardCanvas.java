@@ -20,11 +20,13 @@ public class BoardCanvas extends Canvas {
     private static final Color SAXION_GREEN = new Color(0, 156, 130);
 
     private final ChessBoard chessBoard;
-    private final ArrayList<Position> possiblePositions = new ArrayList<>();
+    private final ArrayList<Ply> game;
+    private ArrayList<Ply> possiblePlies = null;
     private Position selectedPosition = null;
 
-    public BoardCanvas(ChessBoard chessBoard) {
+    public BoardCanvas(ChessBoard chessBoard, ArrayList<Ply> game) {
         this.chessBoard = chessBoard;
+        this.game = game;
         setSize(SIZE, SIZE);
         addMouseListener(new MouseAdapter() {
             @Override
@@ -34,19 +36,26 @@ public class BoardCanvas extends Canvas {
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                selectedPosition = null;
-                possiblePositions.clear();
                 var point = e.getPoint();
                 var position = pointToPosition(point);
                 if (position != null) {
                     var piece = getPiece(position);
-                    if (piece != null) {
-                        selectedPosition = position;
-                        var plies = piece.possiblePlies();
-                        for (Ply ply : plies) {
-                            possiblePositions.add(ply.to());
+                    if (selectedPosition == null || possiblePlies.size() == 0) {
+                        if (piece != null && piece.getPlayer() == chessBoard.getPlayer()) {
+                            selectedPosition = position;
+                            possiblePlies = piece.possiblePlies();
+                            repaint();
                         }
-                        repaint();
+                    } else {
+                        for(var ply : possiblePlies) {
+                            if (ply.to.compareTo(position) == 0) {
+                                chessBoard.playPly(ply);
+                                selectedPosition = null;
+                                possiblePlies.clear();
+                                repaint();
+                                break;
+                            }
+                        }
                     }
                 }
             }
@@ -61,8 +70,8 @@ public class BoardCanvas extends Canvas {
         paintPieces(graphics, chessBoard.getWhitePieces());
         if (selectedPosition != null) {
             markSquare((Graphics2D) graphics, selectedPosition, Color.BLUE);
-            for (Position position : possiblePositions)
-                markSquare((Graphics2D) graphics, position, Color.GREEN);
+            for (var ply : possiblePlies)
+                markSquare((Graphics2D) graphics, ply.to, Color.GREEN);
         }
     }
 

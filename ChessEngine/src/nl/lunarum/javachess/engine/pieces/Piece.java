@@ -108,4 +108,20 @@ public abstract class Piece {
         do
             position1 = position1.upRight(-1, -1);
         while (addPossiblePly(plies, position1));
+    }
+
+    /**
+     * Move this Piece to the new position; current position or validity of the move isn't checked and chessboard isn't changed.
+     * @param ply the ply to play out
+     */
+    public void playPly(Ply ply) {
+        position = ply.to;
+    }
+
+    /**
+     * Move this Piece back to the old position; current position or validity of the move isn't checked and chessboard isn't changed.
+     * @param ply the ply to retract
+     */
+    public void retractPly(Ply ply) {
+        position = ply.from;
     }}

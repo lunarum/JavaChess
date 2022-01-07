@@ -71,10 +71,45 @@ public class ChessBoard {
         return whitePlayer;
     }
 
+    public Player getPlayer() {
+        return player;
+    }
+
     public Piece onSquare(Position position) {
         if (position == null)
             return null;
         return squares[position.index()];
+    }
+
+    public void playPly(Ply ply) {
+        ply.piece.playPly(ply);
+        squares[ply.from.index()] = null;
+        squares[ply.to.index()] = ply.piece;
+        if (ply.piece.isBlack) {
+            player = whitePlayer;
+        } else {
+            player = blackPlayer;
+            ++move;
+        }
+        ply.setMove(move);
+        ply.setPreviousHalfMoves(halfMoves);
+        if (ply.piece.type() == Piece.Type.PAWN || ply.capturedPiece != null)
+            halfMoves = 0;
+        else
+            ++halfMoves;
+    }
+
+    public void retractPly(Ply ply) {
+        halfMoves = ply.getPreviousHalfMoves();
+        if (ply.piece.isBlack) {
+            player = blackPlayer;
+        } else {
+            player = whitePlayer;
+            --move;
+        }
+        squares[ply.to.index()] = ply.capturedPiece;
+        squares[ply.from.index()] = ply.piece;
+        ply.piece.retractPly(ply);
     }
 
     public void setup() {
