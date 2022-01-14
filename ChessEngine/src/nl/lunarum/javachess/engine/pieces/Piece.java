@@ -31,13 +31,10 @@ public abstract class Piece {
     }
 
     public void setPosition(Position position) {
-        if (position == null) {
-            chessBoard.clearSquare(this.position);
-            this.position = position;
-        } else {
-            this.position = position;
+        chessBoard.clearSquare(this.position);
+        this.position = position;
+        if (position != null)
             chessBoard.setPiece(this);
-        }
     }
 
     public Player getPlayer() {

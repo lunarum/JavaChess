@@ -76,4 +76,13 @@ public class Ply {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        if (isKingCastling())
+            return "O-O";
+        if (isQueenCastling())
+            return "O-O-O";
+        return from + (capturedPiece == null ? "-" : "x") + to;
+    }
 }

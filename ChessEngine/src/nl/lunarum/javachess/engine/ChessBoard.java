@@ -84,13 +84,15 @@ public class ChessBoard {
 
     public void playPly(Ply ply) {
         ply.piece.playPly(ply);
+
+        ply.setMove(move);
         if (ply.piece.isBlack) {
             player = whitePlayer;
         } else {
             player = blackPlayer;
             ++move;
         }
-        ply.setMove(move);
+
         ply.setPreviousHalfMoves(halfMoves);
         if (ply.piece.type() == Piece.Type.PAWN || ply.capturedPiece != null)
             halfMoves = 0;

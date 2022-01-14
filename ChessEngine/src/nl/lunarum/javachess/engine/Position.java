@@ -80,6 +80,8 @@ public record Position(int file, int rank, String display) implements Comparable
 
     @Override
     public int compareTo(Position other) {
+        if (other == null)
+            return Integer.MAX_VALUE;
         int compared = other.file - file;
          if (compared == 0)
              compared = other.rank - rank;

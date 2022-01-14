@@ -10,7 +10,7 @@ import java.util.ArrayList;
 
 public class JavaChess {
     private final JFrame mainWindow;
-    private final BoardCanvas canvas;
+    private final BoardPanel canvas;
     private final NotationPanel notationPanel;
 
     public static void main(String[] args) throws IOException {
@@ -20,18 +20,23 @@ public class JavaChess {
     public JavaChess() {
         mainWindow = new JFrame("Java Chess");
         mainWindow.setLayout(new BorderLayout());
+        mainWindow.setSize(1000, 800);
 
         ArrayList<Ply> game = new ArrayList<>();
         ChessBoard chessBoard = new ChessBoard();
         chessBoard.setup();
-        canvas = new BoardCanvas(chessBoard, game);
-        mainWindow.add(canvas, BorderLayout.CENTER);
 
         notationPanel = new NotationPanel(game);
+        notationPanel.setPreferredSize(new Dimension(200, 600));
         mainWindow.add(notationPanel, BorderLayout.EAST);
 
-        mainWindow.pack();
-        mainWindow.setVisible(true);
+        canvas = new BoardPanel(notationPanel, chessBoard, game);
+        canvas.setMinimumSize(new Dimension(400, 400));
+        canvas.setPreferredSize(new Dimension(600, 600));
+        mainWindow.add(canvas, BorderLayout.CENTER);
+
+//        mainWindow.pack();
         mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainWindow.setVisible(true);
     }
 }
