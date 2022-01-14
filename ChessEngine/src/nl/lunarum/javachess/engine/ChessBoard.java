@@ -31,8 +31,10 @@ public class ChessBoard {
     }
 
     public void addPiece(Piece piece) {
-        int index = piece.getPosition().index();
-        assert squares[index] == null : "Position is already occupied";
+        var position = piece.getPosition();
+        assert position != null : "Piece " + piece + " is not on the board";
+        int index = position.index();
+        assert squares[index] == null : "Position " + position + "is already occupied";
         squares[index] = piece;
         if (piece.isBlack)
             blackPlayer.addPiece(piece);
@@ -40,17 +42,16 @@ public class ChessBoard {
             whitePlayer.addPiece(piece);
     }
 
-    public void removePiece(Piece piece) {
-        assert squares[piece.getPosition().index()] == piece : "Piece not found";
-        removePiece(piece.getPosition());
+    public void setPiece(Piece piece) {
+        var position = piece.getPosition();
+        assert position != null : "Piece " + piece + " is not on the board";
+        squares[position.index()] = piece;
     }
 
-    public void removePiece(Position position) {
+    public void clearSquare(Position position) {
         int index = position.index();
-        var piece = squares[index];
-        assert piece != null : "Position is already empty";
+        assert squares[index] != null : "Position is already empty";
         squares[index] = null;
-        piece.setPosition(null);
     }
 
     public void clear() {
@@ -83,8 +84,6 @@ public class ChessBoard {
 
     public void playPly(Ply ply) {
         ply.piece.playPly(ply);
-        squares[ply.from.index()] = null;
-        squares[ply.to.index()] = ply.piece;
         if (ply.piece.isBlack) {
             player = whitePlayer;
         } else {
@@ -107,8 +106,7 @@ public class ChessBoard {
             player = whitePlayer;
             --move;
         }
-        squares[ply.to.index()] = ply.capturedPiece;
-        squares[ply.from.index()] = ply.piece;
+
         ply.piece.retractPly(ply);
     }
 
@@ -118,15 +116,15 @@ public class ChessBoard {
 
     private Piece newPiece(char type, Position position) {
         char type1 = Character.toLowerCase(type);
-        switch(type1) {
-            case 'k': return new King(  this, type == type1, position);
-            case 'q': return new Queen( this, type == type1, position);
-            case 'r': return new Rook(  this, type == type1, position);
-            case 'b': return new Bishop(this, type == type1, position);
-            case 'n': return new Knight(this, type == type1, position);
-            case 'p': return new Pawn(  this, type == type1, position);
-        }
-        return  null;
+        return switch (type1) {
+            case 'k' -> new King(this, type == type1, position);
+            case 'q' -> new Queen(this, type == type1, position);
+            case 'r' -> new Rook(this, type == type1, position);
+            case 'b' -> new Bishop(this, type == type1, position);
+            case 'n' -> new Knight(this, type == type1, position);
+            case 'p' -> new Pawn(this, type == type1, position);
+            default -> null;
+        };
     }
 
     public void setup(String Fen) {

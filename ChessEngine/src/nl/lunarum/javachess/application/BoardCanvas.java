@@ -47,7 +47,7 @@ public class BoardCanvas extends Canvas {
                             repaint();
                         }
                     } else {
-                        for(var ply : possiblePlies) {
+                        for (var ply : possiblePlies) {
                             if (ply.to.compareTo(position) == 0) {
                                 chessBoard.playPly(ply);
                                 selectedPosition = null;

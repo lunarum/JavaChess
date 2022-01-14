@@ -12,6 +12,8 @@ public abstract class Piece {
     public enum Type {
         KING, QUEEN, BISHOP, KNIGHT, ROOK, PAWN
     }
+    public final static String blackPieceTypes = "kqbnrp";
+    public final static String whitePieceTypes = "KQBNRP";
 
     public final ChessBoard chessBoard;
     public final boolean isBlack;
@@ -29,13 +31,26 @@ public abstract class Piece {
     }
 
     public void setPosition(Position position) {
-        this.position = position;
+        if (position == null) {
+            chessBoard.clearSquare(this.position);
+            this.position = position;
+        } else {
+            this.position = position;
+            chessBoard.setPiece(this);
+        }
     }
 
     public Player getPlayer() {
         if (isBlack)
             return chessBoard.getBlackPlayer();
         return chessBoard.getWhitePlayer();
+    }
+
+    @Override
+    public String toString() {
+        return isBlack ?
+                Character.toString(blackPieceTypes.charAt(type().ordinal())) + position :
+                Character.toString(whitePieceTypes.charAt(type().ordinal())) + position;
     }
 
     public abstract ArrayList<Ply> possiblePlies();
@@ -111,11 +126,14 @@ public abstract class Piece {
     }
 
     /**
-     * Move this Piece to the new position; current position or validity of the move isn't checked and chessboard isn't changed.
+     * Move this Piece to the new position; current position or validity of the move isn't checked but chessboard is changed.
      * @param ply the ply to play out
      */
     public void playPly(Ply ply) {
-        position = ply.to;
+        if (ply.capturedPiece != null) {
+            ply.capturedPiece.setPosition(null);
+        }
+        setPosition(ply.to);
     }
 
     /**
@@ -123,5 +141,9 @@ public abstract class Piece {
      * @param ply the ply to retract
      */
     public void retractPly(Ply ply) {
-        position = ply.from;
-    }}
+        setPosition(ply.from);
+        if (ply.capturedPiece != null) {
+            ply.capturedPiece.setPosition(ply.to);
+        }
+    }
+}

@@ -58,4 +58,22 @@ public class Ply {
     public void setPreviousHalfMoves(int previousHalfMoves) {
         this.previousHalfMoves = previousHalfMoves;
     }
+
+    public boolean isKingCastling() {
+        if (piece.type() == Piece.Type.KING) {
+            return (piece.isBlack) ?
+                    from.compareTo(Position.E8) == 0 && to.compareTo(Position.G8) == 0 :
+                    from.compareTo(Position.E1) == 0 && to.compareTo(Position.G1) == 0;
+        }
+        return false;
+    }
+
+    public boolean isQueenCastling() {
+        if (piece.type() == Piece.Type.KING) {
+            return (piece.isBlack) ?
+                    from.compareTo(Position.E8) == 0 && to.compareTo(Position.C8) == 0 :
+                    from.compareTo(Position.E1) == 0 && to.compareTo(Position.C1) == 0;
+        }
+        return false;
+    }
 }

@@ -53,4 +53,34 @@ public class King extends Piece {
             }
         }
     }
+
+    @Override
+    public void playPly(Ply ply) {
+        super.playPly(ply);
+        if (ply.isKingCastling()) {
+            var rook = chessBoard.onSquare(ply.to.right(1));
+            assert rook != null && rook.type() == Type.ROOK : "Missing rook on king castling of " + this;
+            rook.setPosition(ply.to.right(-1));
+        }
+        else if (ply.isQueenCastling()) {
+            var rook = chessBoard.onSquare(ply.to.right(-2));
+            assert rook != null && rook.type() == Type.ROOK : "Missing rook on queen castling of " + this;
+            rook.setPosition(ply.to.right(1));
+        }
+    }
+
+    @Override
+    public void retractPly(Ply ply) {
+        super.retractPly(ply);
+        if (ply.isKingCastling()) {
+            var rook = chessBoard.onSquare(ply.to.right(-1));
+            assert rook != null && rook.type() == Type.ROOK : "Missing rook on retracting king castling of " + this;
+            rook.setPosition(ply.to.right(1));
+        }
+        else if (ply.isQueenCastling()) {
+            var rook = chessBoard.onSquare(ply.to.right(1));
+            assert rook != null && rook.type() == Type.ROOK : "Missing rook on retracting queen castling of " + this;
+            rook.setPosition(ply.to.right(-2));
+        }
+    }
 }
