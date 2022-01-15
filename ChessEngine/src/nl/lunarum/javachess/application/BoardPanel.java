@@ -51,11 +51,11 @@ public class BoardPanel extends JPanel {
                 var point = e.getPoint();
                 var position = pointToPosition(point);
                 if (position != null) {
-                    var piece = getPiece(position);
+                    var piece= chessBoard.getPiece(position);
                     if (selectedPosition == null || possiblePlies.size() == 0) {
-                        if (piece != null && piece.getPlayer() == chessBoard.getPlayer()) {
+                        if (piece != null && piece.isBlack == chessBoard.getPlayer().isBlack) {
                             selectedPosition = position;
-                            possiblePlies = piece.possiblePlies();
+                            possiblePlies = piece.possiblePlies(position);
                             repaint();
                         }
                     } else {
@@ -81,8 +81,7 @@ public class BoardPanel extends JPanel {
         super.paint(graphics);
         setSizes();
         paintBoard(graphics);
-        paintPieces(graphics, chessBoard.getBlackPieces());
-        paintPieces(graphics, chessBoard.getWhitePieces());
+        paintPieces(graphics);
         if (selectedPosition != null) {
             markSquare((Graphics2D) graphics, selectedPosition, Color.BLUE);
             for (var ply : possiblePlies)
@@ -90,17 +89,6 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    private Piece getPiece(Position position) {
-        for (Piece piece : chessBoard.getBlackPieces()) {
-            if (position.compareTo(piece.getPosition()) == 0)
-                return piece;
-        }
-        for (Piece piece : chessBoard.getWhitePieces()) {
-            if (position.compareTo(piece.getPosition()) == 0)
-                return piece;
-        }
-        return null;
-    }
 
     private void markSquare(Graphics2D graphics2, Position position, Color color) {
         if (position != null) {
@@ -182,17 +170,20 @@ public class BoardPanel extends JPanel {
         }
     }
 
-    private void paintPieces(Graphics graphics, ArrayList<Piece> pieces) {
+    private void paintPieces(Graphics graphics) {
         graphics.setColor(Color.BLACK);
-        for (Piece piece : pieces) {
-            var position = piece.getPosition();
-            if (position != null) {
-                String pieceString = pieceToString(piece);
-                if (pieceString != null) {
-                    int x = borderSize + position.file() * squareSize + 8;
-                    int y = borderSize + (8 - position.rank()) * squareSize - 20;
-                    graphics.setFont(PIECE_FONT);
-                    graphics.drawString(pieceString, x, y);
+        for (int file = 0; file < 8; ++file) {
+            for (int rank = 0; rank < 8; ++rank) {
+                Position position = new Position(file, rank);
+                var piece = chessBoard.onSquare(position);
+                if (piece != null) {
+                    String pieceString = pieceToString(piece);
+                    if (pieceString != null) {
+                        int x = borderSize + position.file() * squareSize + 8;
+                        int y = borderSize + (8 - position.rank()) * squareSize - 20;
+                        graphics.setFont(PIECE_FONT);
+                        graphics.drawString(pieceString, x, y);
+                    }
                 }
             }
         }

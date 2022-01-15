@@ -2,25 +2,16 @@ package nl.lunarum.javachess.engine;
 
 import nl.lunarum.javachess.engine.pieces.*;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ChessBoard {
     private final Piece[] squares = new Piece[64];
-    private final Player blackPlayer = new Player();
-    private final Player whitePlayer = new Player();
+    private final Player blackPlayer = new Player(this, true);
+    private final Player whitePlayer = new Player(this, false);
     private Player player = whitePlayer;
     private int halfMoves = 0;
     private int move = 1;
     private Position enPassant = null;
-
-    public ArrayList<Piece> getBlackPieces() {
-        return blackPlayer.getPieces();
-    }
-
-    public ArrayList<Piece> getWhitePieces() {
-        return whitePlayer.getPieces();
-    }
 
     public int getHalfMoves() {
         return halfMoves;
@@ -30,34 +21,26 @@ public class ChessBoard {
         return move;
     }
 
-    public void addPiece(Piece piece) {
-        var position = piece.getPosition();
+    public void addPiece(Piece piece, Position position) {
         assert position != null : "Piece " + piece + " is not on the board";
         int index = position.index();
         assert squares[index] == null : "Position " + position + "is already occupied";
         squares[index] = piece;
-        if (piece.isBlack)
-            blackPlayer.addPiece(piece);
-        else
-            whitePlayer.addPiece(piece);
     }
 
-    public void setPiece(Piece piece) {
-        var position = piece.getPosition();
-        assert position != null : "Piece " + piece + " is not on the board";
-        squares[position.index()] = piece;
+    public void movePiece(Piece piece, Position fromPosition, Position toPosition) {
+        assert fromPosition != null : "Piece " + piece + " is not on the board";
+        squares[fromPosition.index()] = null;
+        assert toPosition != null : "Piece " + piece + " destination is unknown";
+        squares[toPosition.index()] = piece;
     }
 
-    public void clearSquare(Position position) {
-        int index = position.index();
-        assert squares[index] != null : "Position is already empty";
-        squares[index] = null;
+    public Piece getPiece(Position position) {
+        return position == null ? null : squares[position.index()];
     }
 
     public void clear() {
         Arrays.fill(squares, null);
-        blackPlayer.clearPieces();
-        whitePlayer.clearPieces();
         player = whitePlayer;
         enPassant = null;
         halfMoves = 0;
@@ -83,7 +66,19 @@ public class ChessBoard {
     }
 
     public void playPly(Ply ply) {
-        ply.piece.playPly(ply);
+        movePiece(ply.piece, ply.from, ply.to);
+        if (ply.isKingCastling()) {
+            var rookPosition = ply.to.right(1);
+            var rook = onSquare(rookPosition);
+            assert rook != null && rook.type() == Piece.Type.ROOK : "Missing rook on king castling of " + ply.piece;
+            movePiece(rook, rookPosition, ply.to.right(-1));
+        }
+        else if (ply.isQueenCastling()) {
+            var rookPosition = ply.to.right(-2);
+            var rook = onSquare(rookPosition);
+            assert rook != null && rook.type() == Piece.Type.ROOK : "Missing rook on queen castling of " + ply.piece;
+            movePiece(rook, rookPosition, ply.to.right(1));
+        }
 
         ply.setMove(move);
         if (ply.piece.isBlack) {
@@ -109,24 +104,40 @@ public class ChessBoard {
             --move;
         }
 
-        ply.piece.retractPly(ply);
+        movePiece(ply.piece, ply.from, ply.to);
+        if (ply.isKingCastling()) {
+            var rookPosition = ply.to.right(-1);
+            var rook = onSquare(rookPosition);
+            assert rook != null && rook.type() == Piece.Type.ROOK : "Missing rook on king castling of " + ply.piece;
+            movePiece(rook, rookPosition, ply.to.right(1));
+        }
+        else if (ply.isQueenCastling()) {
+            var rookPosition = ply.to.right(1);
+            var rook = onSquare(rookPosition);
+            assert rook != null && rook.type() == Piece.Type.ROOK : "Missing rook on queen castling of " + ply.piece;
+            movePiece(rook, rookPosition, ply.to.right(-2));
+        }
     }
 
     public void setup() {
         setup("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
     }
 
-    private Piece newPiece(char type, Position position) {
-        char type1 = Character.toLowerCase(type);
-        return switch (type1) {
-            case 'k' -> new King(this, type == type1, position);
-            case 'q' -> new Queen(this, type == type1, position);
-            case 'r' -> new Rook(this, type == type1, position);
-            case 'b' -> new Bishop(this, type == type1, position);
-            case 'n' -> new Knight(this, type == type1, position);
-            case 'p' -> new Pawn(this, type == type1, position);
-            default -> null;
-        };
+    private void addPiece(char type, Position position) {
+        switch (type) {
+            case 'k' -> addPiece(blackPlayer.king, position);
+            case 'q' -> addPiece(blackPlayer.queen, position);
+            case 'r' -> addPiece(blackPlayer.rook, position);
+            case 'b' -> addPiece(blackPlayer.bishop, position);
+            case 'n' -> addPiece(blackPlayer.knight, position);
+            case 'p' -> addPiece(blackPlayer.pawn, position);
+            case 'K' -> addPiece(whitePlayer.king, position);
+            case 'Q' -> addPiece(whitePlayer.queen, position);
+            case 'R' -> addPiece(whitePlayer.rook, position);
+            case 'B' -> addPiece(whitePlayer.bishop, position);
+            case 'N' -> addPiece(whitePlayer.knight, position);
+            case 'P' -> addPiece(whitePlayer.pawn, position);
+        }
     }
 
     public void setup(String Fen) {
@@ -140,8 +151,8 @@ public class ChessBoard {
             char ch = Fen.charAt(index);
             if (Character.isDigit(ch)) {
                 position = position.right(ch - '0');
-            } else if (ch != '/'){
-                newPiece(ch, position);
+            } else if (ch != '/') {
+                addPiece(ch, position);
                 position = position.right(1);
             }
             ++index;

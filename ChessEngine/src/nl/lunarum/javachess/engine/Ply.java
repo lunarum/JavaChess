@@ -11,33 +11,33 @@ public class Ply {
     private int move;
     private int previousHalfMoves;
 
-    public Ply(Piece piece, Position to) {
+    public Ply(Piece piece, Position from, Position to) {
         this.piece = piece;
-        this.from = piece.getPosition();
+        this.from = from;
         this.to = to;
         this.capturedPiece = null;
         this.promotedPiece = null;
     }
 
-    public Ply(Piece piece, Position to, Piece capturedPiece) {
+    public Ply(Piece piece, Position from, Position to, Piece capturedPiece) {
         this.piece = piece;
-        this.from = piece.getPosition();
+        this.from = from;
         this.to = to;
         this.capturedPiece = capturedPiece;
         this.promotedPiece = null;
     }
 
-    public Ply(Piece piece, Position to, Piece.Type promotedPiece) {
+    public Ply(Piece piece, Position from, Position to, Piece.Type promotedPiece) {
         this.piece = piece;
-        this.from = piece.getPosition();
+        this.from = from;
         this.to = to;
         this.capturedPiece = null;
         this.promotedPiece = promotedPiece;
     }
 
-    public Ply(Piece piece, Position to, Piece capturedPiece, Piece.Type promotedPiece) {
+    public Ply(Piece piece, Position from, Position to, Piece capturedPiece, Piece.Type promotedPiece) {
         this.piece = piece;
-        this.from = piece.getPosition();
+        this.from = from;
         this.to = to;
         this.capturedPiece = capturedPiece;
         this.promotedPiece = promotedPiece;

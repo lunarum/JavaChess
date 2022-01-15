@@ -7,8 +7,8 @@ import nl.lunarum.javachess.engine.Position;
 import java.util.ArrayList;
 
 public class Pawn extends Piece {
-    public Pawn(ChessBoard chessBoard, boolean isBlack, Position position) {
-        super(chessBoard, isBlack, position);
+    public Pawn(ChessBoard chessBoard, boolean isBlack) {
+        super(chessBoard, isBlack);
     }
 
     @Override
@@ -16,57 +16,57 @@ public class Pawn extends Piece {
         return Type.PAWN;
     }
 
-    private void addPromotedPlies(ArrayList<Ply> plies, Position position) {
-        plies.add(new Ply(this, position, null, Type.QUEEN));
-        plies.add(new Ply(this, position, null, Type.ROOK));
-        plies.add(new Ply(this, position, null, Type.BISHOP));
-        plies.add(new Ply(this, position, null, Type.KNIGHT));
+    private void addPromotedPlies(ArrayList<Ply> plies, Position fromPosition, Position toPosition) {
+        plies.add(new Ply(this, fromPosition, toPosition, Type.QUEEN));
+        plies.add(new Ply(this, fromPosition, toPosition, Type.ROOK));
+        plies.add(new Ply(this, fromPosition, toPosition, Type.BISHOP));
+        plies.add(new Ply(this, fromPosition, toPosition, Type.KNIGHT));
     }
 
-    protected boolean addPossibleEmptyPositionPly(ArrayList<Ply> plies, Position position) {
-        if (position == null) // No position?
+    protected boolean addPossibleEmptyPositionPly(ArrayList<Ply> plies, Position fromPosition, Position toPosition) {
+        if (toPosition == null) // No position?
             return false;
 
         int promotionRank = isBlack ? Position.A1.rank() : Position.A8.rank();
-        var piece = chessBoard.onSquare(position);
+        var piece = chessBoard.onSquare(toPosition);
         if (piece == null) { // Empty square?
-            if (position.rank() == promotionRank)
-                addPromotedPlies(plies, position);
+            if (toPosition.rank() == promotionRank)
+                addPromotedPlies(plies, fromPosition, toPosition);
             else
-                plies.add(new Ply(this, position));
+                plies.add(new Ply(this, fromPosition, toPosition));
             return true;
         }
         return false;
     }
 
-    protected void addPossibleCapturePositionPly(ArrayList<Ply> plies, Position position) {
-        if (position == null) // No position?
+    protected void addPossibleCapturePositionPly(ArrayList<Ply> plies, Position fromPosition, Position toPosition) {
+        if (toPosition == null) // No position?
             return;
 
         int promotionRank = isBlack ? Position.A1.rank() : Position.A8.rank();
-        var piece = chessBoard.onSquare(position);
+        var piece = chessBoard.onSquare(toPosition);
         if (piece == null || piece.isBlack == isBlack) // Position empty or occupied with a piece of the same color?
             return;
 
-        if (position.rank() == promotionRank)
-            addPromotedPlies(plies, position);
+        if (toPosition.rank() == promotionRank)
+            addPromotedPlies(plies, fromPosition, toPosition);
         else
-            plies.add(new Ply(this, position, piece));
+            plies.add(new Ply(this, fromPosition, toPosition, piece));
     }
 
     @Override
-    public ArrayList<Ply> possiblePlies() {
+    public ArrayList<Ply> possiblePlies(Position position) {
         ArrayList<Ply> plies = new ArrayList<>();
 
         int direction = isBlack ? -1 : 1;
         int initialRank = isBlack ? Position.A7.rank() : Position.A2.rank();
 
-        if (addPossibleEmptyPositionPly(plies, position.up(direction))) { // Is next position empty?
+        if (addPossibleEmptyPositionPly(plies, position, position.up(direction))) { // Is next position empty?
             if (position.rank() == initialRank) // Initial rank and 2 square move possible?
-                addPossibleEmptyPositionPly(plies, position.up(2 * direction));
+                addPossibleEmptyPositionPly(plies, position, position.up(2 * direction));
         }
-        addPossibleCapturePositionPly(plies, position.upRight(direction, -1));
-        addPossibleCapturePositionPly(plies, position.upRight(direction, 1));
+        addPossibleCapturePositionPly(plies, position, position.upRight(direction, -1));
+        addPossibleCapturePositionPly(plies, position, position.upRight(direction, 1));
         //TODO add en-passant captures
 
         return plies;

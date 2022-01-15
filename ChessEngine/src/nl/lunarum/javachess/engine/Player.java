@@ -1,31 +1,28 @@
 package nl.lunarum.javachess.engine;
 
-import nl.lunarum.javachess.engine.pieces.Piece;
+import nl.lunarum.javachess.engine.pieces.*;
 
 import java.util.ArrayList;
 
 public class Player {
-    private final ArrayList<Piece> pieces = new ArrayList<>(16);
+    public final boolean isBlack;
     private boolean canCastleKingSide = true;
     private boolean canCastleQueenSide = true;
+    public final King king;
+    public final Queen queen;
+    public final Bishop bishop;
+    public final Knight knight;
+    public final Rook rook;
+    public final Pawn pawn;
 
-    public Player() {
-    }
-
-    public ArrayList<Piece> getPieces() {
-        return pieces;
-    }
-
-    public void addPiece(Piece piece) {
-        pieces.add(piece);
-    }
-
-    public void removePiece(Piece piece) {
-        pieces.remove(piece);
-    }
-
-    public void clearPieces() {
-        pieces.clear();
+    public Player(ChessBoard chessBoard, boolean isBlack) {
+        this.isBlack = isBlack;
+        king = new King(chessBoard, isBlack);
+        queen = new Queen(chessBoard, isBlack);
+        bishop = new Bishop(chessBoard, isBlack);
+        knight = new Knight(chessBoard, isBlack);
+        rook = new Rook(chessBoard, isBlack);
+        pawn = new Pawn(chessBoard, isBlack);
     }
 
     public boolean isCanCastleKingSide() {

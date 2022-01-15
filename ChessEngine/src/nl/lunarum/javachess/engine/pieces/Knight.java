@@ -7,8 +7,8 @@ import nl.lunarum.javachess.engine.Position;
 import java.util.ArrayList;
 
 public class Knight extends Piece {
-    public Knight(ChessBoard chessBoard, boolean isBlack, Position position) {
-        super(chessBoard, isBlack, position);
+    public Knight(ChessBoard chessBoard, boolean isBlack) {
+        super(chessBoard, isBlack);
     }
 
     @Override
@@ -17,17 +17,17 @@ public class Knight extends Piece {
     }
 
     @Override
-    public ArrayList<Ply> possiblePlies() {
+    public ArrayList<Ply> possiblePlies(Position position) {
         ArrayList<Ply> plies = new ArrayList<>();
 
-        addPossiblePly(plies, position.upRight(2,-1));
-        addPossiblePly(plies, position.upRight(2, 1));
-        addPossiblePly(plies, position.upRight(-2,-1));
-        addPossiblePly(plies, position.upRight(-2, 1));
-        addPossiblePly(plies, position.upRight(-1,2));
-        addPossiblePly(plies, position.upRight(1, 2));
-        addPossiblePly(plies, position.upRight(-1,-2));
-        addPossiblePly(plies, position.upRight(1, -2));
+        addPossiblePly(plies, position, position.upRight(2,-1));
+        addPossiblePly(plies, position, position.upRight(2, 1));
+        addPossiblePly(plies, position, position.upRight(-2,-1));
+        addPossiblePly(plies, position, position.upRight(-2, 1));
+        addPossiblePly(plies, position, position.upRight(-1,2));
+        addPossiblePly(plies, position, position.upRight(1, 2));
+        addPossiblePly(plies, position, position.upRight(-1,-2));
+        addPossiblePly(plies, position, position.upRight(1, -2));
 
         return plies;
     }
