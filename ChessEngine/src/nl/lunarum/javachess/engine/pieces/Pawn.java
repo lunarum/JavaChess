@@ -55,20 +55,16 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public ArrayList<Ply> possiblePlies(Position position) {
-        ArrayList<Ply> plies = new ArrayList<>();
-
+    public void addPossiblePlies(ArrayList<Ply> plies, Position fromPosition) {
         int direction = isBlack ? -1 : 1;
         int initialRank = isBlack ? Position.A7.rank() : Position.A2.rank();
 
-        if (addPossibleEmptyPositionPly(plies, position, position.up(direction))) { // Is next position empty?
-            if (position.rank() == initialRank) // Initial rank and 2 square move possible?
-                addPossibleEmptyPositionPly(plies, position, position.up(2 * direction));
+        if (addPossibleEmptyPositionPly(plies, fromPosition, fromPosition.up(direction))) { // Is next position empty?
+            if (fromPosition.rank() == initialRank) // Initial rank and 2 square move possible?
+                addPossibleEmptyPositionPly(plies, fromPosition, fromPosition.up(2 * direction));
         }
-        addPossibleCapturePositionPly(plies, position, position.upRight(direction, -1));
-        addPossibleCapturePositionPly(plies, position, position.upRight(direction, 1));
+        addPossibleCapturePositionPly(plies, fromPosition, fromPosition.upRight(direction, -1));
+        addPossibleCapturePositionPly(plies, fromPosition, fromPosition.upRight(direction, 1));
         //TODO add en-passant captures
-
-        return plies;
     }
 }

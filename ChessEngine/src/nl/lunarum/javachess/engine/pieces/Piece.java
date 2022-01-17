@@ -27,7 +27,7 @@ public abstract class Piece {
         return Character.toString((isBlack ? blackPieceTypes : whitePieceTypes).charAt(type().ordinal()));
     }
 
-    public abstract ArrayList<Ply> possiblePlies(Position position);
+    public abstract void addPossiblePlies(ArrayList<Ply> plies, Position fromPosition);
     public abstract Type type();
 
     /**

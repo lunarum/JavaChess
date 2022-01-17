@@ -1,90 +1,73 @@
 package nl.lunarum.javachess.engine;
 
+public enum Position {
+    A1, A2, A3, A4, A5, A6, A7, A8,
+    B1, B2, B3, B4, B5, B6, B7, B8,
+    C1, C2, C3, C4, C5, C6, C7, C8,
+    D1, D2, D3, D4, D5, D6, D7, D8,
+    E1, E2, E3, E4, E5, E6, E7, E8,
+    F1, F2, F3, F4, F5, F6, F7, F8,
+    G1, G2, G3, G4, G5, G6, G7, G8,
+    H1, H2, H3, H4, H5, H6, H7, H8;
 
-public record Position(int file, int rank, String display) implements Comparable<Position> {
-    public static Position A1 = new Position(0, 0);
-    public static Position A2 = new Position(0, 1);
-    public static Position A4 = new Position(0, 3);
-    public static Position A7 = new Position(0, 6);
-    public static Position A8 = new Position(0, 7);
-    public static Position B1 = new Position(1, 0);
-    public static Position B2 = new Position(1, 1);
-    public static Position B4 = new Position(1, 3);
-    public static Position B7 = new Position(1, 6);
-    public static Position B8 = new Position(1, 7);
-    public static Position C1 = new Position(2, 0);
-    public static Position C2 = new Position(2, 1);
-    public static Position C4 = new Position(2, 3);
-    public static Position C7 = new Position(2, 6);
-    public static Position C8 = new Position(2, 7);
-    public static Position D1 = new Position(3, 0);
-    public static Position D2 = new Position(3, 1);
-    public static Position D4 = new Position(3, 3);
-    public static Position D7 = new Position(3, 6);
-    public static Position D8 = new Position(3, 7);
-    public static Position E1 = new Position(4, 0);
-    public static Position E2 = new Position(4, 1);
-    public static Position E4 = new Position(4, 3);
-    public static Position E7 = new Position(4, 6);
-    public static Position E8 = new Position(4, 7);
-    public static Position F1 = new Position(5, 0);
-    public static Position F2 = new Position(5, 1);
-    public static Position F7 = new Position(5, 6);
-    public static Position F8 = new Position(5, 7);
-    public static Position G1 = new Position(6, 0);
-    public static Position G2 = new Position(6, 1);
-    public static Position G7 = new Position(6, 6);
-    public static Position G8 = new Position(6, 7);
-    public static Position H1 = new Position(7, 0);
-    public static Position H2 = new Position(7, 1);
-    public static Position H7 = new Position(7, 6);
-    public static Position H8 = new Position(7, 7);
-
-    public Position(int file, int rank) {
-        this(file, rank, "ABCDEFGH".substring(Math.max(Math.min(file, 7), 0), 1 + Math.max(Math.min(file, 7), 0)) + (rank + 1));
-        assert file < 0 || file > 7 || rank < 0 || rank > 7 : "Invalid position";
-    }
-
-    public Position up(int steps) {
-        int newRank = rank + steps;
-        if (newRank < 0 || newRank > 7)
-            return null;
-        return new Position(file, newRank);
-    }
-
-    public Position right(int steps) {
-        int newFile = file + steps;
-        if (newFile < 0 || newFile > 7)
-            return null;
-        return new Position(newFile, rank);
-    }
-
-    public Position upRight(int stepsUp, int stepsRight) {
-        int newRank = rank + stepsUp;
-        if (newRank < 0 || newRank > 7)
-            return null;
-        int newFile = file + stepsRight;
-        if (newFile < 0 || newFile > 7)
-            return null;
-        return new Position(newFile, newRank);
-    }
-
-    public int index() {
-        return (file << 3) + rank;
-    }
+    static private final Position[] cachedValues = Position.values();
 
     @Override
     public String toString() {
-        return display;
+        int rank = ordinal();
+        int file = rank >> 3;
+        rank &= 7;
+        return "ABCDEFGH".substring(file, file+1) + (rank + 1);
     }
 
-    @Override
-    public int compareTo(Position other) {
-        if (other == null)
-            return Integer.MAX_VALUE;
-        int compared = other.file - file;
-         if (compared == 0)
-             compared = other.rank - rank;
-        return compared;
+    public Position next() {
+        int index = ordinal() + 1;
+        if (index < cachedValues.length)
+            return cachedValues[index];
+        return null;
+    }
+
+    public static Position fromOrdinal(int ordinal) {
+        if (ordinal < 0 || ordinal > cachedValues.length)
+            return null;
+        return cachedValues[ordinal];
+    }
+
+    public static Position fromFileRank(int file, int rank) {
+        int ordinal = (file & 7) << 3 + rank & 7;
+        if (ordinal < 0 || ordinal > cachedValues.length)
+            return null;
+        return cachedValues[ordinal];
+    }
+
+    public Position up(int steps) {
+        int rank = ordinal();
+        int file = rank & 56;
+        rank &= 7;
+        rank += steps;
+        if (rank < 0 || rank > 7)
+            return null;
+        return cachedValues[file | rank];
+    }
+
+    public Position right(int steps) {
+        int rank = ordinal();
+        int file = rank >> 3;
+        rank &= 7;
+        file += steps;
+        if (file < 0 || file > 7)
+            return null;
+        return cachedValues[file << 3 | rank];
+    }
+
+    public Position upRight(int stepsUp, int stepsRight) {
+        int rank = ordinal();
+        int file = rank >> 3;
+        file += stepsRight;
+        rank &= 7;
+        rank += stepsUp;
+        if (rank < 0 || rank > 7 || file < 0 || file > 7)
+            return null;
+        return cachedValues[file << 3 | rank];
     }
 }

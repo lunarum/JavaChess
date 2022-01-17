@@ -55,7 +55,7 @@ public class BoardPanel extends JPanel {
                     if (selectedPosition == null || possiblePlies.size() == 0) {
                         if (piece != null && piece.isBlack == chessBoard.getPlayer().isBlack) {
                             selectedPosition = position;
-                            possiblePlies = piece.possiblePlies(position);
+                            possiblePlies = piece.addPossiblePlies(position);
                             repaint();
                         }
                     } else {

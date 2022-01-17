@@ -17,11 +17,7 @@ public class Rook extends Piece {
     }
 
     @Override
-    public ArrayList<Ply> possiblePlies(Position position) {
-        ArrayList<Ply> plies = new ArrayList<>();
-
-        addPossibleStraightRayPlies(plies, position);
-
-        return plies;
+    public void addPossiblePlies(ArrayList<Ply> plies, Position fromPosition) {
+        addPossibleStraightRayPlies(plies, fromPosition);
     }
 }

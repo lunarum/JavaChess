@@ -17,18 +17,14 @@ public class Knight extends Piece {
     }
 
     @Override
-    public ArrayList<Ply> possiblePlies(Position position) {
-        ArrayList<Ply> plies = new ArrayList<>();
-
-        addPossiblePly(plies, position, position.upRight(2,-1));
-        addPossiblePly(plies, position, position.upRight(2, 1));
-        addPossiblePly(plies, position, position.upRight(-2,-1));
-        addPossiblePly(plies, position, position.upRight(-2, 1));
-        addPossiblePly(plies, position, position.upRight(-1,2));
-        addPossiblePly(plies, position, position.upRight(1, 2));
-        addPossiblePly(plies, position, position.upRight(-1,-2));
-        addPossiblePly(plies, position, position.upRight(1, -2));
-
-        return plies;
+    public void addPossiblePlies(ArrayList<Ply> plies, Position fromPosition) {
+        addPossiblePly(plies, fromPosition, fromPosition.upRight(2,-1));
+        addPossiblePly(plies, fromPosition, fromPosition.upRight(2, 1));
+        addPossiblePly(plies, fromPosition, fromPosition.upRight(-2,-1));
+        addPossiblePly(plies, fromPosition, fromPosition.upRight(-2, 1));
+        addPossiblePly(plies, fromPosition, fromPosition.upRight(-1,2));
+        addPossiblePly(plies, fromPosition, fromPosition.upRight(1, 2));
+        addPossiblePly(plies, fromPosition, fromPosition.upRight(-1,-2));
+        addPossiblePly(plies, fromPosition, fromPosition.upRight(1, -2));
     }
 }

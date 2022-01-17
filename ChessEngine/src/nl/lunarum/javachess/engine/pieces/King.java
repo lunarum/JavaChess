@@ -17,20 +17,16 @@ public class King extends Piece {
     }
 
     @Override
-    public ArrayList<Ply> possiblePlies(Position position) {
-        ArrayList<Ply> plies = new ArrayList<>();
-
-        addPossiblePly(plies, position, position.up(1));
-        addPossiblePly(plies, position, position.upRight(1, 1));
-        addPossiblePly(plies, position, position.right(1));
-        addPossiblePly(plies, position, position.upRight(1, -1));
-        addPossiblePly(plies, position, position.up(-1));
-        addPossiblePly(plies, position, position.upRight(-1, -1));
-        addPossiblePly(plies, position, position.right(-1));
-        addPossiblePly(plies, position, position.upRight(-1, 1));
-        addPossibleCastling(plies, position, position);
-
-        return plies;
+    public void addPossiblePlies(ArrayList<Ply> plies, Position fromPosition) {
+        addPossiblePly(plies, fromPosition, fromPosition.up(1));
+        addPossiblePly(plies, fromPosition, fromPosition.upRight(1, 1));
+        addPossiblePly(plies, fromPosition, fromPosition.right(1));
+        addPossiblePly(plies, fromPosition, fromPosition.upRight(1, -1));
+        addPossiblePly(plies, fromPosition, fromPosition.up(-1));
+        addPossiblePly(plies, fromPosition, fromPosition.upRight(-1, -1));
+        addPossiblePly(plies, fromPosition, fromPosition.right(-1));
+        addPossiblePly(plies, fromPosition, fromPosition.upRight(-1, 1));
+        addPossibleCastling(plies, fromPosition, fromPosition);
     }
     
     private void addPossibleCastling(ArrayList<Ply> plies, Position fromPosition, Position toPosition) {

@@ -2,6 +2,7 @@ package nl.lunarum.javachess.engine;
 
 import nl.lunarum.javachess.engine.pieces.*;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class ChessBoard {
@@ -23,20 +24,20 @@ public class ChessBoard {
 
     public void addPiece(Piece piece, Position position) {
         assert position != null : "Piece " + piece + " is not on the board";
-        int index = position.index();
+        int index = position.ordinal();
         assert squares[index] == null : "Position " + position + "is already occupied";
         squares[index] = piece;
     }
 
     public void movePiece(Piece piece, Position fromPosition, Position toPosition) {
         assert fromPosition != null : "Piece " + piece + " is not on the board";
-        squares[fromPosition.index()] = null;
+        squares[fromPosition.ordinal()] = null;
         assert toPosition != null : "Piece " + piece + " destination is unknown";
-        squares[toPosition.index()] = piece;
+        squares[toPosition.ordinal()] = piece;
     }
 
     public Piece getPiece(Position position) {
-        return position == null ? null : squares[position.index()];
+        return position == null ? null : squares[position.ordinal()];
     }
 
     public void clear() {
@@ -62,7 +63,20 @@ public class ChessBoard {
     public Piece onSquare(Position position) {
         if (position == null)
             return null;
-        return squares[position.index()];
+        return squares[position.ordinal()];
+    }
+
+    public ArrayList<Ply> getPossiblePlies() {
+        ArrayList<Ply> plies = new ArrayList<>(40); // average of 35 plies per player move
+
+        for(int index = 0; index < squares.length; ++index) {
+            var piece = squares[index];
+            if (piece != null && piece.isBlack == player.isBlack) {
+                piece.addPossiblePlies(plies, Position.fromOrdinal(index));
+            }
+        }
+
+        return plies;
     }
 
     public void playPly(Ply ply) {
@@ -193,7 +207,7 @@ public class ChessBoard {
                 if (index  < Fen.length()) {
                     int rank = Fen.charAt(index++) - '0' - 1;
                     if (rank == 2 || rank == 5) {
-                        enPassant = new Position(file, rank);
+                        enPassant = Position.fromFileRank(file, rank);
                     }
                 }
             }
