@@ -24,7 +24,7 @@ public class BoardPanel extends JPanel {
     private final NotationPanel notationPanel;
     private final ChessBoard chessBoard;
     private final ArrayList<Ply> game;
-    private ArrayList<Ply> possiblePlies = null;
+    private ArrayList<Ply> possiblePlies = new ArrayList<>(40);
     private Position selectedPosition = null;
 
     private void setSizes() {
@@ -54,9 +54,12 @@ public class BoardPanel extends JPanel {
                     var piece= chessBoard.getPiece(position);
                     if (selectedPosition == null || possiblePlies.size() == 0) {
                         if (piece != null && piece.isBlack == chessBoard.getPlayer().isBlack) {
-                            selectedPosition = position;
-                            possiblePlies = piece.addPossiblePlies(position);
-                            repaint();
+                            possiblePlies.clear();
+                            piece.addPossiblePlies(possiblePlies, position);
+                            if (possiblePlies.size() > 0) { // Can this piece be moved?
+                                selectedPosition = position;
+                                repaint();
+                            }
                         }
                     } else {
                         for (var ply : possiblePlies) {
@@ -172,18 +175,15 @@ public class BoardPanel extends JPanel {
 
     private void paintPieces(Graphics graphics) {
         graphics.setColor(Color.BLACK);
-        for (int file = 0; file < 8; ++file) {
-            for (int rank = 0; rank < 8; ++rank) {
-                Position position = new Position(file, rank);
-                var piece = chessBoard.onSquare(position);
-                if (piece != null) {
-                    String pieceString = pieceToString(piece);
-                    if (pieceString != null) {
-                        int x = borderSize + position.file() * squareSize + 8;
-                        int y = borderSize + (8 - position.rank()) * squareSize - 20;
-                        graphics.setFont(PIECE_FONT);
-                        graphics.drawString(pieceString, x, y);
-                    }
+        for(var position : Position.values()) {
+            var piece = chessBoard.onSquare(position);
+            if (piece != null) {
+                String pieceString = pieceToString(piece);
+                if (pieceString != null) {
+                    int x = borderSize + position.file() * squareSize + 8;
+                    int y = borderSize + (8 - position.rank()) * squareSize - 20;
+                    graphics.setFont(PIECE_FONT);
+                    graphics.drawString(pieceString, x, y);
                 }
             }
         }
@@ -194,7 +194,7 @@ public class BoardPanel extends JPanel {
         if (file >= 0 && file <= 7) {
             int rank = (point.y - borderSize) / squareSize;
             if (rank >= 0 && rank <= 7) {
-                return new Position(file, 7 - rank);
+                return Position.fromFileRank(file, 7 - rank);
             }
         }
         return null;

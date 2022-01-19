@@ -20,6 +20,21 @@ public enum Position {
         return "ABCDEFGH".substring(file, file+1) + (rank + 1);
     }
 
+    /**
+     * Return the file number
+     * @return file as number 0..7
+     */
+    public int file() {
+        return ordinal() >> 3; // No need to mask this, because file will never be anything else than 0..7
+    }
+    /**
+     * Return the rank number
+     * @return rank as number 0..7
+     */
+    public int rank() {
+        return ordinal() & 7; // Mask of file bits
+    }
+
     public Position next() {
         int index = ordinal() + 1;
         if (index < cachedValues.length)
@@ -34,7 +49,7 @@ public enum Position {
     }
 
     public static Position fromFileRank(int file, int rank) {
-        int ordinal = (file & 7) << 3 + rank & 7;
+        int ordinal = ((file & 7) << 3) | (rank & 7);
         if (ordinal < 0 || ordinal > cachedValues.length)
             return null;
         return cachedValues[ordinal];
@@ -68,6 +83,6 @@ public enum Position {
         rank += stepsUp;
         if (rank < 0 || rank > 7 || file < 0 || file > 7)
             return null;
-        return cachedValues[file << 3 | rank];
+        return cachedValues[(file << 3) | rank];
     }
 }
