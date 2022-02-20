@@ -17,14 +17,14 @@ public class BoardPanel extends JPanel {
     private int squareSize;
     private int markBorderSize;
 
+    private static final int PIECE_FONT_SIZE = 72;
     private static final Font BORDER_FONT = new Font("LucidaSans", Font.BOLD, 16);
-    private static final Font PIECE_FONT = new Font("LucidaSans", Font.PLAIN, 72);
+    private static final Font PIECE_FONT = new Font("LucidaSans", Font.PLAIN, PIECE_FONT_SIZE);
     private static final Color SAXION_GREEN = new Color(0, 156, 130);
 
     private final NotationPanel notationPanel;
     private final ChessBoard chessBoard;
-    private final ArrayList<Ply> game;
-    private ArrayList<Ply> possiblePlies = new ArrayList<>(40);
+    private final ArrayList<Ply> possiblePlies = new ArrayList<>(40);
     private Position selectedPosition = null;
 
     private void setSizes() {
@@ -34,10 +34,9 @@ public class BoardPanel extends JPanel {
         markBorderSize = borderSize / 5;
     }
 
-    public BoardPanel(NotationPanel notationPanel, ChessBoard chessBoard, ArrayList<Ply> game) {
+    public BoardPanel(NotationPanel notationPanel, ChessBoard chessBoard) {
         this.notationPanel = notationPanel;
         this.chessBoard = chessBoard;
-        this.game = game;
         setSizes();
 
         addMouseListener(new MouseAdapter() {
@@ -64,9 +63,8 @@ public class BoardPanel extends JPanel {
                     } else {
                         for (var ply : possiblePlies) {
                             if (ply.to.compareTo(position) == 0) {
-                                game.add(ply);
-                                notationPanel.repaint();
                                 chessBoard.playPly(ply);
+                                notationPanel.repaint();
                                 selectedPosition = null;
                                 possiblePlies.clear();
                                 repaint();
@@ -180,8 +178,9 @@ public class BoardPanel extends JPanel {
             if (piece != null) {
                 String pieceString = pieceToString(piece);
                 if (pieceString != null) {
-                    int x = borderSize + position.file() * squareSize + 8;
-                    int y = borderSize + (8 - position.rank()) * squareSize - 20;
+                    int offset = 0;//(squareSize - PIECE_FONT_SIZE) / 2;
+                    int x = borderSize + position.file() * squareSize + offset;
+                    int y = borderSize + (8 - position.rank()) * squareSize + offset;
                     graphics.setFont(PIECE_FONT);
                     graphics.drawString(pieceString, x, y);
                 }

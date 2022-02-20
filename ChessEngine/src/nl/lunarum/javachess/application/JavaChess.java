@@ -12,6 +12,7 @@ public class JavaChess {
     private final JFrame mainWindow;
     private final BoardPanel canvas;
     private final NotationPanel notationPanel;
+    private final ButtonPanel buttonPanel;
 
     public static void main(String[] args) throws IOException {
         new JavaChess();
@@ -22,18 +23,22 @@ public class JavaChess {
         mainWindow.setLayout(new BorderLayout());
         mainWindow.setSize(1000, 800);
 
-        ArrayList<Ply> game = new ArrayList<>();
         ChessBoard chessBoard = new ChessBoard();
         chessBoard.setup();
 
-        notationPanel = new NotationPanel(game);
+        notationPanel = new NotationPanel(chessBoard);
         notationPanel.setPreferredSize(new Dimension(200, 600));
         mainWindow.add(notationPanel, BorderLayout.EAST);
 
-        canvas = new BoardPanel(notationPanel, chessBoard, game);
+        canvas = new BoardPanel(notationPanel, chessBoard);
         canvas.setMinimumSize(new Dimension(400, 400));
-        canvas.setPreferredSize(new Dimension(600, 600));
+        canvas.setPreferredSize(new Dimension(800, 600));
         mainWindow.add(canvas, BorderLayout.CENTER);
+
+        buttonPanel = new ButtonPanel(chessBoard, canvas, notationPanel);
+        canvas.setMinimumSize(new Dimension(400, 50));
+        buttonPanel.setPreferredSize(new Dimension(600, 50));
+        mainWindow.add(buttonPanel, BorderLayout.SOUTH);
 
 //        mainWindow.pack();
         mainWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

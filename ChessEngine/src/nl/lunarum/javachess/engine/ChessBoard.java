@@ -13,6 +13,7 @@ public class ChessBoard {
     private int halfMoves = 0;
     private int move = 1;
     private Position enPassant = null;
+    private final ArrayList<Ply> game = new ArrayList<>();
 
     public int getHalfMoves() {
         return halfMoves;
@@ -67,6 +68,7 @@ public class ChessBoard {
         enPassant = null;
         halfMoves = 0;
         move = 1;
+        game.clear();
     }
 
     public Player getBlackPlayer() {
@@ -79,6 +81,10 @@ public class ChessBoard {
 
     public Player getCurrentPlayer() {
         return currentPlayer;
+    }
+
+    public ArrayList<Ply> getGame() {
+        return game;
     }
 
     public Piece onSquare(Position position) {
@@ -100,6 +106,19 @@ public class ChessBoard {
         return plies;
     }
 
+    public int evaluate() {
+        int value = 0;
+
+        for(int index = 0; index < squares.length; ++index) {
+            var piece = squares[index];
+            if (piece != null) {
+                value += piece.evaluate(this, Position.fromOrdinal(index));
+            }
+        }
+
+        return value;
+    }
+
     public void playPly(Ply ply) {
         movePiece(ply.piece, ply.from, ply.to);
         boolean isKingCastling = ply.isKingCastling();
@@ -119,9 +138,13 @@ public class ChessBoard {
             halfMoves = 0;
         else
             ++halfMoves;
+
+        game.add(ply);
     }
 
     public void retractPly(Ply ply) {
+        game.remove(ply);
+
         halfMoves = ply.getPreviousHalfMoves();
         if (ply.piece.color == Piece.Color.BLACK) {
             currentPlayer = blackPlayer;
@@ -130,7 +153,7 @@ public class ChessBoard {
             --move;
         }
 
-        movePiece(ply.piece, ply.from, ply.to);
+        movePiece(ply.piece, ply.to, ply.from);
         moveCastlingRook(ply.isKingCastling(), false, ply);
     }
 
