@@ -7,9 +7,9 @@ import java.util.Arrays;
 
 public class ChessBoard {
     private final Piece[] squares = new Piece[64];
-    private final Player blackPlayer = new Player(this, true);
-    private final Player whitePlayer = new Player(this, false);
-    private Player player = whitePlayer;
+    private final Player blackPlayer = new Player(Piece.Color.BLACK);
+    private final Player whitePlayer = new Player(Piece.Color.WHITE);
+    private Player currentPlayer = whitePlayer;
     private int halfMoves = 0;
     private int move = 1;
     private Position enPassant = null;
@@ -36,13 +36,34 @@ public class ChessBoard {
         squares[toPosition.ordinal()] = piece;
     }
 
+    private void moveCastlingRook(boolean isKingSide, boolean isForward, Ply ply) {
+        if (isKingSide) {
+            var rookPosition = isForward ? ply.to.right(1) : ply.to.right(-1);
+            assert rookPosition != null : "King position wrong on king castling: " + ply.to;
+            var rook = onSquare(rookPosition);
+            assert rook != null && rook.type() == Piece.Type.ROOK : "Missing rook on king castling of " + ply.piece;
+            var newRookPosition = isForward ? ply.to.right(-1) : ply.to.right(1);
+            assert newRookPosition != null : "Rook position wrong on king castling: " + ply.to;
+            movePiece(rook, rookPosition, newRookPosition);
+        }
+        else if (ply.isQueenCastling()) {
+            var rookPosition = isForward ? ply.to.right(-2) : ply.to.right(1);
+            assert rookPosition != null : "King position wrong on queen castling: " + ply.to;
+            var rook = onSquare(rookPosition);
+            assert rook != null && rook.type() == Piece.Type.ROOK : "Missing rook on queen castling of " + ply.piece;
+            var newRookPosition = isForward ? ply.to.right(1) : ply.to.right(-2);
+            assert newRookPosition != null : "Rook position wrong on queen castling: " + ply.to;
+            movePiece(rook, rookPosition, newRookPosition);
+        }
+    }
+
     public Piece getPiece(Position position) {
         return position == null ? null : squares[position.ordinal()];
     }
 
     public void clear() {
         Arrays.fill(squares, null);
-        player = whitePlayer;
+        currentPlayer = whitePlayer;
         enPassant = null;
         halfMoves = 0;
         move = 1;
@@ -56,8 +77,8 @@ public class ChessBoard {
         return whitePlayer;
     }
 
-    public Player getPlayer() {
-        return player;
+    public Player getCurrentPlayer() {
+        return currentPlayer;
     }
 
     public Piece onSquare(Position position) {
@@ -71,8 +92,8 @@ public class ChessBoard {
 
         for(int index = 0; index < squares.length; ++index) {
             var piece = squares[index];
-            if (piece != null && piece.isBlack == player.isBlack) {
-                piece.addPossiblePlies(plies, Position.fromOrdinal(index));
+            if (piece != null && piece.color == currentPlayer.color) {
+                piece.addPossiblePlies(plies, this, Position.fromOrdinal(index));
             }
         }
 
@@ -81,24 +102,15 @@ public class ChessBoard {
 
     public void playPly(Ply ply) {
         movePiece(ply.piece, ply.from, ply.to);
-        if (ply.isKingCastling()) {
-            var rookPosition = ply.to.right(1);
-            var rook = onSquare(rookPosition);
-            assert rook != null && rook.type() == Piece.Type.ROOK : "Missing rook on king castling of " + ply.piece;
-            movePiece(rook, rookPosition, ply.to.right(-1));
-        }
-        else if (ply.isQueenCastling()) {
-            var rookPosition = ply.to.right(-2);
-            var rook = onSquare(rookPosition);
-            assert rook != null && rook.type() == Piece.Type.ROOK : "Missing rook on queen castling of " + ply.piece;
-            movePiece(rook, rookPosition, ply.to.right(1));
-        }
-
+        boolean isKingCastling = ply.isKingCastling();
+        boolean isQueenCastling = !isKingCastling && ply.isQueenCastling();
+        if (isKingCastling || isQueenCastling) moveCastlingRook(isKingCastling, true, ply);
         ply.setMove(move);
-        if (ply.piece.isBlack) {
-            player = whitePlayer;
+
+        if (ply.piece.color == Piece.Color.BLACK) {
+            currentPlayer = whitePlayer;
         } else {
-            player = blackPlayer;
+            currentPlayer = blackPlayer;
             ++move;
         }
 
@@ -111,26 +123,15 @@ public class ChessBoard {
 
     public void retractPly(Ply ply) {
         halfMoves = ply.getPreviousHalfMoves();
-        if (ply.piece.isBlack) {
-            player = blackPlayer;
+        if (ply.piece.color == Piece.Color.BLACK) {
+            currentPlayer = blackPlayer;
         } else {
-            player = whitePlayer;
+            currentPlayer = whitePlayer;
             --move;
         }
 
         movePiece(ply.piece, ply.from, ply.to);
-        if (ply.isKingCastling()) {
-            var rookPosition = ply.to.right(-1);
-            var rook = onSquare(rookPosition);
-            assert rook != null && rook.type() == Piece.Type.ROOK : "Missing rook on king castling of " + ply.piece;
-            movePiece(rook, rookPosition, ply.to.right(1));
-        }
-        else if (ply.isQueenCastling()) {
-            var rookPosition = ply.to.right(1);
-            var rook = onSquare(rookPosition);
-            assert rook != null && rook.type() == Piece.Type.ROOK : "Missing rook on queen castling of " + ply.piece;
-            movePiece(rook, rookPosition, ply.to.right(-2));
-        }
+        moveCastlingRook(ply.isKingCastling(), false, ply);
     }
 
     public void setup() {
@@ -184,7 +185,7 @@ public class ChessBoard {
         if (index + 2 < Fen.length()) {
             char ch = Fen.charAt(index++);
             if (ch == 'b') // Black to move next? (default is white)
-                player = blackPlayer;
+                currentPlayer = blackPlayer;
         }
 
         // Skip space

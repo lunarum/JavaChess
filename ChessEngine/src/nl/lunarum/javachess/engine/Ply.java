@@ -3,6 +3,32 @@ package nl.lunarum.javachess.engine;
 import nl.lunarum.javachess.engine.pieces.Piece;
 
 public class Ply {
+    public enum Annotation {
+        None(0),
+        KingSideCastling(1),
+        QueenSideCastling(2),
+        Check(4),
+        CheckMate(8);
+
+        private int flag;
+
+        Annotation(int flag) {
+            this.flag = flag;
+        }
+
+        public boolean isPartOf(int flags) {
+            return (flags & flag) != 0;
+        }
+
+        public int set(int flags) {
+            return flags | flag;
+        }
+
+        public int reset(int flags) {
+            return flags & (~flag);
+        }
+    }
+
     public final Piece piece;
     public final Position from;
     public final Position to;
@@ -10,6 +36,7 @@ public class Ply {
     public final Piece.Type promotedPiece;
     private int move;
     private int previousHalfMoves;
+    private int annotations = 0;
 
     public Ply(Piece piece, Position from, Position to) {
         this.piece = piece;
@@ -60,29 +87,33 @@ public class Ply {
     }
 
     public boolean isKingCastling() {
-        if (piece.type() == Piece.Type.KING) {
-            return (piece.isBlack) ?
-                    from.compareTo(Position.E8) == 0 && to.compareTo(Position.G8) == 0 :
-                    from.compareTo(Position.E1) == 0 && to.compareTo(Position.G1) == 0;
-        }
-        return false;
+        return Annotation.KingSideCastling.isPartOf(annotations);
     }
 
     public boolean isQueenCastling() {
-        if (piece.type() == Piece.Type.KING) {
-            return (piece.isBlack) ?
-                    from.compareTo(Position.E8) == 0 && to.compareTo(Position.C8) == 0 :
-                    from.compareTo(Position.E1) == 0 && to.compareTo(Position.C1) == 0;
-        }
-        return false;
+        return Annotation.QueenSideCastling.isPartOf(annotations);
+    }
+
+    public void setAnnotation(Annotation annotation) {
+        annotations = annotation.set(annotations);
     }
 
     @Override
     public String toString() {
+        StringBuilder builder = new StringBuilder();
         if (isKingCastling())
-            return "O-O";
-        if (isQueenCastling())
-            return "O-O-O";
-        return from + (capturedPiece == null ? "-" : "x") + to;
+            builder.append("O-O");
+        else if (isQueenCastling())
+            builder.append("O-O-O");
+        else {
+            builder.append(from);
+            builder.append(capturedPiece == null ? '-' : 'x');
+            builder.append(to);
+        }
+        if (Annotation.CheckMate.isPartOf(annotations))
+            builder.append('#');
+        else if (Annotation.Check.isPartOf(annotations))
+            builder.append('+');
+        return builder.toString();
     }
 }

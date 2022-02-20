@@ -7,8 +7,8 @@ import nl.lunarum.javachess.engine.Position;
 import java.util.ArrayList;
 
 public class Bishop extends Piece {
-    public Bishop(ChessBoard chessBoard, boolean isBlack) {
-        super(chessBoard, isBlack);
+    public Bishop(Color color) {
+        super(color);
     }
 
     @Override
@@ -17,7 +17,12 @@ public class Bishop extends Piece {
     }
 
     @Override
-    public void addPossiblePlies(ArrayList<Ply> plies, Position fromPosition) {
-        addPossibleDiagonaltRayPlies(plies, fromPosition);
+    public void addPossiblePlies(ArrayList<Ply> plies, ChessBoard chessBoard, Position fromPosition) {
+        addPossibleDiagonalRayPlies(plies, chessBoard, fromPosition);
+    }
+
+    @Override
+    public int evaluate(ChessBoard chessBoard, Position position) {
+        return color == Color.BLACK ? -3000 : 3000;
     }
 }

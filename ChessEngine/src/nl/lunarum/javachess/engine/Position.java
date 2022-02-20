@@ -50,7 +50,7 @@ public enum Position {
 
     public static Position fromFileRank(int file, int rank) {
         int ordinal = ((file & 7) << 3) | (rank & 7);
-        if (ordinal < 0 || ordinal > cachedValues.length)
+        if (ordinal > cachedValues.length)
             return null;
         return cachedValues[ordinal];
     }

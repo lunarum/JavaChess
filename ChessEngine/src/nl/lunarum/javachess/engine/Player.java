@@ -2,10 +2,8 @@ package nl.lunarum.javachess.engine;
 
 import nl.lunarum.javachess.engine.pieces.*;
 
-import java.util.ArrayList;
-
 public class Player {
-    public final boolean isBlack;
+    public final Piece.Color color;
     private boolean canCastleKingSide = true;
     private boolean canCastleQueenSide = true;
     public final King king;
@@ -15,14 +13,14 @@ public class Player {
     public final Rook rook;
     public final Pawn pawn;
 
-    public Player(ChessBoard chessBoard, boolean isBlack) {
-        this.isBlack = isBlack;
-        king = new King(chessBoard, isBlack);
-        queen = new Queen(chessBoard, isBlack);
-        bishop = new Bishop(chessBoard, isBlack);
-        knight = new Knight(chessBoard, isBlack);
-        rook = new Rook(chessBoard, isBlack);
-        pawn = new Pawn(chessBoard, isBlack);
+    public Player(Piece.Color color) {
+        this.color = color;
+        king = new King(color);
+        queen = new Queen(color);
+        bishop = new Bishop(color);
+        knight = new Knight(color);
+        rook = new Rook(color);
+        pawn = new Pawn(color);
     }
 
     public boolean isCanCastleKingSide() {

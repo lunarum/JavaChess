@@ -1,6 +1,7 @@
 package nl.lunarum.javachess.application;
 
 import nl.lunarum.javachess.engine.Ply;
+import nl.lunarum.javachess.engine.pieces.Piece;
 
 import javax.swing.*;
 import java.awt.*;
@@ -31,7 +32,7 @@ public class NotationPanel extends JScrollPane {
         int yPosition = 36;
         String move = "...";
         for (var ply : game) {
-            if (ply.piece.isBlack) {
+            if (ply.piece.color == Piece.Color.BLACK) {
                 move += ", " + ply;
                 graphics.drawString(move, 4, yPosition);
                 yPosition += 14;

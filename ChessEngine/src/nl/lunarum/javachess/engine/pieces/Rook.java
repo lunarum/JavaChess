@@ -7,8 +7,8 @@ import nl.lunarum.javachess.engine.Position;
 import java.util.ArrayList;
 
 public class Rook extends Piece {
-    public Rook(ChessBoard chessBoard, boolean isBlack) {
-        super(chessBoard, isBlack);
+    public Rook(Color color) {
+        super(color);
     }
 
     @Override
@@ -17,7 +17,12 @@ public class Rook extends Piece {
     }
 
     @Override
-    public void addPossiblePlies(ArrayList<Ply> plies, Position fromPosition) {
-        addPossibleStraightRayPlies(plies, fromPosition);
+    public void addPossiblePlies(ArrayList<Ply> plies, ChessBoard chessBoard, Position fromPosition) {
+        addPossibleStraightRayPlies(plies, chessBoard, fromPosition);
+    }
+
+    @Override
+    public int evaluate(ChessBoard chessBoard, Position position) {
+        return color == Color.BLACK ? -5000 : 5000;
     }
 }

@@ -53,9 +53,9 @@ public class BoardPanel extends JPanel {
                 if (position != null) {
                     var piece= chessBoard.getPiece(position);
                     if (selectedPosition == null || possiblePlies.size() == 0) {
-                        if (piece != null && piece.isBlack == chessBoard.getPlayer().isBlack) {
+                        if (piece != null && piece.color == chessBoard.getCurrentPlayer().color) {
                             possiblePlies.clear();
-                            piece.addPossiblePlies(possiblePlies, position);
+                            piece.addPossiblePlies(possiblePlies, chessBoard, position);
                             if (possiblePlies.size() > 0) { // Can this piece be moved?
                                 selectedPosition = position;
                                 repaint();
@@ -152,7 +152,7 @@ public class BoardPanel extends JPanel {
     }
 
     private String pieceToString(Piece piece) {
-        if (piece.isBlack) {
+        if (piece.color == Piece.Color.BLACK) {
             return switch (piece.type()) {
                 case PAWN -> "\u265f"; // Unicode black pawn
                 case KING -> "\u265a"; // Unicode black king
