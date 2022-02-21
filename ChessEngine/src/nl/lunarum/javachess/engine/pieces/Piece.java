@@ -51,7 +51,7 @@ public abstract class Piece {
         }
         if (piece.color == color) // Position occupied with a piece of the same color?
             return null;
-        var ply = new Ply(this, fromPosition, toPosition, piece);
+        var ply = new Ply(this, fromPosition, piece, toPosition);
         plies.add(ply);
         return ply;
     }
@@ -65,22 +65,23 @@ public abstract class Piece {
      */
     protected void addPossibleStraightRayPlies(ArrayList<Ply> plies, ChessBoard chessBoard, Position position) {
         if (position != null) {
+            Ply ply;
             Position position1 = position;
             do
                 position1 = position1.up(1);
-            while (position1 != null && addPossiblePly(plies, chessBoard, position, position1) != null);
+            while (position1 != null && (ply = addPossiblePly(plies, chessBoard, position, position1)) != null && ply.capturedPiece == null);
             position1 = position;
             do
                 position1 = position1.up(-1);
-            while (position1 != null && addPossiblePly(plies, chessBoard, position, position1) != null);
+            while (position1 != null && (ply = addPossiblePly(plies, chessBoard, position, position1)) != null && ply.capturedPiece == null);
             position1 = position;
             do
                 position1 = position1.right(1);
-            while (position1 != null && addPossiblePly(plies, chessBoard, position, position1) != null);
+            while (position1 != null && (ply = addPossiblePly(plies, chessBoard, position, position1)) != null && ply.capturedPiece == null);
             position1 = position;
             do
                 position1 = position1.right(-1);
-            while (position1 != null && addPossiblePly(plies, chessBoard, position, position1) != null);
+            while (position1 != null && (ply = addPossiblePly(plies, chessBoard, position, position1)) != null && ply.capturedPiece == null);
         }
     }
 
@@ -93,22 +94,23 @@ public abstract class Piece {
      */
     protected void addPossibleDiagonalRayPlies(ArrayList<Ply> plies, ChessBoard chessBoard, Position position) {
         if (position != null) {
+            Ply ply;
             Position position1 = position;
             do
                 position1 = position1.upRight(1, 1);
-            while (position1 != null && addPossiblePly(plies, chessBoard, position, position1) != null);
+            while (position1 != null && (ply = addPossiblePly(plies, chessBoard, position, position1)) != null && ply.capturedPiece == null);
             position1 = position;
             do
                 position1 = position1.upRight(1, -1);
-            while (position1 != null && addPossiblePly(plies, chessBoard, position, position1) != null);
+            while (position1 != null && (ply = addPossiblePly(plies, chessBoard, position, position1)) != null && ply.capturedPiece == null);
             position1 = position;
             do
                 position1 = position1.upRight(-1, 1);
-            while (position1 != null && addPossiblePly(plies, chessBoard, position, position1) != null);
+            while (position1 != null && (ply = addPossiblePly(plies, chessBoard, position, position1)) != null && ply.capturedPiece == null);
             position1 = position;
             do
                 position1 = position1.upRight(-1, -1);
-            while (position1 != null && addPossiblePly(plies, chessBoard, position, position1) != null);
+            while (position1 != null && (ply = addPossiblePly(plies, chessBoard, position, position1)) != null && ply.capturedPiece == null);
         }
     }
 

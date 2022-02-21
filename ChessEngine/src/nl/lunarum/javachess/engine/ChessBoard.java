@@ -14,6 +14,7 @@ public class ChessBoard {
     private int move = 1;
     private Position enPassant = null;
     private final ArrayList<Ply> game = new ArrayList<>();
+    private int score = 0;
 
     public int getHalfMoves() {
         return halfMoves;
@@ -25,16 +26,28 @@ public class ChessBoard {
 
     public void addPiece(Piece piece, Position position) {
         assert position != null : "Piece " + piece + " is not on the board";
-        int index = position.ordinal();
+        int index = position.position;
         assert squares[index] == null : "Position " + position + "is already occupied";
         squares[index] = piece;
     }
 
-    public void movePiece(Piece piece, Position fromPosition, Position toPosition) {
-        assert fromPosition != null : "Piece " + piece + " is not on the board";
-        squares[fromPosition.ordinal()] = null;
-        assert toPosition != null : "Piece " + piece + " destination is unknown";
-        squares[toPosition.ordinal()] = piece;
+    public void movePiece(Piece fromPiece, Position fromPosition, Piece toPiece, Position toPosition, Piece captured, boolean isForward) {
+        assert fromPosition != null : "Piece " + toPiece + " is not on the board";
+        assert toPosition != null : "Piece " + toPiece + " destination is unknown";
+
+        if (isForward) {
+            squares[fromPosition.position] = null;
+            squares[toPosition.position] = toPiece;
+            score += toPiece.evaluate(this, toPosition) - fromPiece.evaluate(this, fromPosition);
+            if (captured != null)
+                score -= captured.evaluate(this, toPosition);
+        } else {
+            squares[fromPosition.position] = fromPiece;
+            squares[toPosition.position] = captured;
+            score += fromPiece.evaluate(this, fromPosition) - toPiece.evaluate(this, toPosition);
+            if (captured != null)
+                score += captured.evaluate(this, toPosition);
+        }
     }
 
     private void moveCastlingRook(boolean isKingSide, boolean isForward, Ply ply) {
@@ -45,7 +58,7 @@ public class ChessBoard {
             assert rook != null && rook.type() == Piece.Type.ROOK : "Missing rook on king castling of " + ply.piece;
             var newRookPosition = isForward ? ply.to.right(-1) : ply.to.right(1);
             assert newRookPosition != null : "Rook position wrong on king castling: " + ply.to;
-            movePiece(rook, rookPosition, newRookPosition);
+            movePiece(rook, rookPosition, rook, newRookPosition, null, true);
         }
         else if (ply.isQueenCastling()) {
             var rookPosition = isForward ? ply.to.right(-2) : ply.to.right(1);
@@ -54,12 +67,12 @@ public class ChessBoard {
             assert rook != null && rook.type() == Piece.Type.ROOK : "Missing rook on queen castling of " + ply.piece;
             var newRookPosition = isForward ? ply.to.right(1) : ply.to.right(-2);
             assert newRookPosition != null : "Rook position wrong on queen castling: " + ply.to;
-            movePiece(rook, rookPosition, newRookPosition);
+            movePiece(rook, rookPosition, rook, newRookPosition, null, true);
         }
     }
 
     public Piece getPiece(Position position) {
-        return position == null ? null : squares[position.ordinal()];
+        return position == null ? null : squares[position.position];
     }
 
     public void clear() {
@@ -69,6 +82,7 @@ public class ChessBoard {
         halfMoves = 0;
         move = 1;
         game.clear();
+        score = 0;
     }
 
     public Player getBlackPlayer() {
@@ -90,7 +104,7 @@ public class ChessBoard {
     public Piece onSquare(Position position) {
         if (position == null)
             return null;
-        return squares[position.ordinal()];
+        return squares[position.position];
     }
 
     public ArrayList<Ply> getPossiblePlies() {
@@ -106,21 +120,12 @@ public class ChessBoard {
         return plies;
     }
 
-    public int evaluate() {
-        int value = 0;
-
-        for(int index = 0; index < squares.length; ++index) {
-            var piece = squares[index];
-            if (piece != null) {
-                value += piece.evaluate(this, Position.fromOrdinal(index));
-            }
-        }
-
-        return value;
+    public int getScore() {
+        return score;
     }
 
     public void playPly(Ply ply) {
-        movePiece(ply.piece, ply.from, ply.to);
+        movePiece(ply.piece, ply.from, (ply.promotedPiece == null) ? ply.piece : ply.promotedPiece, ply.to, ply.capturedPiece, true);
         boolean isKingCastling = ply.isKingCastling();
         boolean isQueenCastling = !isKingCastling && ply.isQueenCastling();
         if (isKingCastling || isQueenCastling) moveCastlingRook(isKingCastling, true, ply);
@@ -153,8 +158,10 @@ public class ChessBoard {
             --move;
         }
 
-        movePiece(ply.piece, ply.to, ply.from);
-        moveCastlingRook(ply.isKingCastling(), false, ply);
+        boolean isKingCastling = ply.isKingCastling();
+        boolean isQueenCastling = !isKingCastling && ply.isQueenCastling();
+        if (isKingCastling || isQueenCastling) moveCastlingRook(isKingCastling, false, ply);
+        movePiece(ply.piece, ply.from, (ply.promotedPiece == null) ? ply.piece : ply.promotedPiece, ply.to, ply.capturedPiece, false);
     }
 
     public void setup() {
@@ -162,20 +169,23 @@ public class ChessBoard {
     }
 
     private void addPiece(char type, Position position) {
-        switch (type) {
-            case 'k' -> addPiece(blackPlayer.king, position);
-            case 'q' -> addPiece(blackPlayer.queen, position);
-            case 'r' -> addPiece(blackPlayer.rook, position);
-            case 'b' -> addPiece(blackPlayer.bishop, position);
-            case 'n' -> addPiece(blackPlayer.knight, position);
-            case 'p' -> addPiece(blackPlayer.pawn, position);
-            case 'K' -> addPiece(whitePlayer.king, position);
-            case 'Q' -> addPiece(whitePlayer.queen, position);
-            case 'R' -> addPiece(whitePlayer.rook, position);
-            case 'B' -> addPiece(whitePlayer.bishop, position);
-            case 'N' -> addPiece(whitePlayer.knight, position);
-            case 'P' -> addPiece(whitePlayer.pawn, position);
-        }
+        Piece piece = switch(type) {
+            case 'k': yield blackPlayer.king;
+            case 'q': yield blackPlayer.queen;
+            case 'r': yield blackPlayer.rook;
+            case 'b': yield blackPlayer.bishop;
+            case 'n': yield blackPlayer.knight;
+            case 'p': yield blackPlayer.pawn;
+            case 'K': yield whitePlayer.king;
+            case 'Q': yield whitePlayer.queen;
+            case 'R': yield whitePlayer.rook;
+            case 'B': yield whitePlayer.bishop;
+            case 'N': yield whitePlayer.knight;
+            case 'P': yield whitePlayer.pawn;
+            default: assert false : "Unknown piece type"; yield whitePlayer.pawn;
+        };
+        squares[position.position] = piece;
+        score += piece.evaluate(this, position);
     }
 
     public void setup(String Fen) {

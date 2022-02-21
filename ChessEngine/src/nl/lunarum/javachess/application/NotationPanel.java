@@ -27,7 +27,7 @@ public class NotationPanel extends JScrollPane {
         Graphics2D graphics = (Graphics2D) g;
         graphics.setColor(Color.BLACK);
         graphics.setFont(TITLE_FONT);
-        graphics.drawString("GAME", 2, 20);
+        graphics.drawString("GAME [" + chessBoard.getScore() + "]", 2, 20);
 
         graphics.setFont(NOTATION_FONT);
         int yPosition = 36;

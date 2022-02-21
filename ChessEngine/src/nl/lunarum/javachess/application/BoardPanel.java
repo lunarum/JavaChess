@@ -96,9 +96,9 @@ public class BoardPanel extends JPanel {
 //            var oldStroke = graphics2.getStroke();
             graphics2.setStroke(new BasicStroke(markBorderSize));
             graphics2.setColor(color);
-            int x = borderSize + squareSize * position.file() + markBorderSize / 2;
+            int x = borderSize + squareSize * position.file + markBorderSize / 2;
             int x1 = x + squareSize - markBorderSize;
-            int y = borderSize + squareSize * (7 - position.rank()) + markBorderSize / 2;
+            int y = borderSize + squareSize * (7 - position.rank) + markBorderSize / 2;
             int y1 = y + squareSize - markBorderSize;
 //            graphics2.drawRect(x, y,SQUARE_SIZE - MARK_BORDER_SIZE, SQUARE_SIZE - MARK_BORDER_SIZE);
             graphics2.drawLine(x, y1, x1, y1);
@@ -179,8 +179,8 @@ public class BoardPanel extends JPanel {
                 String pieceString = pieceToString(piece);
                 if (pieceString != null) {
                     int offset = 0;//(squareSize - PIECE_FONT_SIZE) / 2;
-                    int x = borderSize + position.file() * squareSize + offset;
-                    int y = borderSize + (8 - position.rank()) * squareSize + offset;
+                    int x = borderSize + position.file * squareSize + offset;
+                    int y = borderSize + (8 - position.rank) * squareSize + offset;
                     graphics.setFont(PIECE_FONT);
                     graphics.drawString(pieceString, x, y);
                 }

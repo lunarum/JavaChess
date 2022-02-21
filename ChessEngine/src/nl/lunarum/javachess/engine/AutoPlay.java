@@ -9,7 +9,7 @@ public class AutoPlay {
         board = chessBoard;
     }
 
-    public Ply getBestPly() {
+    public Ply getBestPly(int depth) {
         var plies = board.getPossiblePlies();
         if (plies.size() == 0) return null;
 
@@ -18,7 +18,7 @@ public class AutoPlay {
         int bestScore = (color == Piece.Color.BLACK) ? Integer.MAX_VALUE : Integer.MIN_VALUE;
         for(var ply : plies) {
             board.playPly(ply);
-            int score = board.evaluate();
+            int score = board.getScore();
             if (color == Piece.Color.BLACK) {
                 if (score < bestScore) {
                     bestPly = ply;

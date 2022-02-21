@@ -33,7 +33,7 @@ public class Ply {
     public final Position from;
     public final Position to;
     public final Piece capturedPiece;
-    public final Piece.Type promotedPiece;
+    public final Piece promotedPiece;
     private int move;
     private int previousHalfMoves;
     private int annotations = 0;
@@ -46,7 +46,7 @@ public class Ply {
         this.promotedPiece = null;
     }
 
-    public Ply(Piece piece, Position from, Position to, Piece capturedPiece) {
+    public Ply(Piece piece, Position from, Piece capturedPiece, Position to) {
         this.piece = piece;
         this.from = from;
         this.to = to;
@@ -54,7 +54,7 @@ public class Ply {
         this.promotedPiece = null;
     }
 
-    public Ply(Piece piece, Position from, Position to, Piece.Type promotedPiece) {
+    public Ply(Piece piece, Position from, Position to, Piece promotedPiece) {
         this.piece = piece;
         this.from = from;
         this.to = to;
@@ -62,7 +62,7 @@ public class Ply {
         this.promotedPiece = promotedPiece;
     }
 
-    public Ply(Piece piece, Position from, Position to, Piece capturedPiece, Piece.Type promotedPiece) {
+    public Ply(Piece piece, Position from, Position to, Piece capturedPiece, Piece promotedPiece) {
         this.piece = piece;
         this.from = from;
         this.to = to;
@@ -106,6 +106,8 @@ public class Ply {
         else if (isQueenCastling())
             builder.append("O-O-O");
         else {
+            if (piece.type() != Piece.Type.PAWN)
+                builder.append(Piece.whitePieceTypes.charAt(piece.type().ordinal()));
             builder.append(from);
             builder.append(capturedPiece == null ? '-' : 'x');
             builder.append(to);

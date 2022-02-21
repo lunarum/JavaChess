@@ -7,6 +7,19 @@ import nl.lunarum.javachess.engine.Position;
 import java.util.ArrayList;
 
 public class King extends Piece {
+    // Values from https://github.com/zserge/carnatus
+    private static final int BASE_VALUE = 60000;
+    private static final int[] PST = {
+            60004, 60054, 60047, 59901, 59901, 60060, 60083, 59938,
+            59968, 60010, 60055, 60056, 60056, 60055, 60010, 60003,
+            59938, 60012, 59943, 60044, 59933, 60028, 60037, 59969,
+            59945, 60050, 60011, 59996, 59981, 60013,     0, 59951,
+            59945, 59957, 59948, 59972, 59949, 59953, 59992, 59950,
+            59953, 59958, 59957, 59921, 59936, 59968, 59971, 59968,
+            59996, 60003, 59986, 59950, 59943, 59982, 60013, 60004,
+            60017, 60030, 59997, 59986, 60006, 59999, 60040, 60018
+    };
+
     public King(Color color) {
         super(color);
     }
@@ -60,6 +73,6 @@ public class King extends Piece {
 
     @Override
     public int evaluate(ChessBoard chessBoard, Position position) {
-        return color == Color.BLACK ? MAX_BLACK_VALUE : MAX_WHITE_VALUE;
+        return color == Color.BLACK ? -PST[position.mirroredPosition] : PST[position.position];
     }
 }
