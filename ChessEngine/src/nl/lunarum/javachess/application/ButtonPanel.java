@@ -49,7 +49,7 @@ public class ButtonPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 AutoPlay play = new AutoPlay((board));
-                var ply = play.getBestPly(5);
+                var ply = play.getBestPly();
                 if (ply != null) {
                     board.playPly(ply);
                     boardPanel.repaint();

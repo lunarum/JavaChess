@@ -3,36 +3,39 @@ package nl.lunarum.javachess.engine;
 import nl.lunarum.javachess.engine.pieces.Piece;
 
 public class AutoPlay {
+    private record Score(Ply ply, int score) {
+    }
+
     private final ChessBoard board;
 
     public AutoPlay(ChessBoard chessBoard) {
         board = chessBoard;
     }
 
-    public Ply getBestPly(int depth) {
-        var plies = board.getPossiblePlies();
-        if (plies.size() == 0) return null;
+    public Ply getBestPly() {
+        Score bestScore = getBestPly(5);
+        return bestScore.ply;
+    }
 
+    private Score getBestPly(int depth) {
         Piece.Color color = board.getCurrentPlayer().color;
-        Ply bestPly = null;
-        int bestScore = (color == Piece.Color.BLACK) ? Integer.MAX_VALUE : Integer.MIN_VALUE;
+        Score bestScore = new Score(null, (color == Piece.Color.BLACK) ? Integer.MAX_VALUE : Integer.MIN_VALUE);
+        var plies = board.getPossiblePlies();
+        if (plies.size() == 0) return bestScore;
         for(var ply : plies) {
             board.playPly(ply);
-            int score = board.getScore();
+            Score score = new Score(ply, (depth > 1) ? getBestPly(depth - 1).score : board.getScore());
             if (color == Piece.Color.BLACK) {
-                if (score < bestScore) {
-                    bestPly = ply;
+                if (score.score < bestScore.score)
                     bestScore = score;
-                }
             } else {
-                if (score > bestScore) {
-                    bestPly = ply;
+                if (score.score > bestScore.score) {
                     bestScore = score;
                 }
             }
             board.retractPly(ply);
         }
 
-        return bestPly;
+        return bestScore;
     }
 }
